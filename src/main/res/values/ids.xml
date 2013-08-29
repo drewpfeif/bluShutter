@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="blushutter_root" type="id">blushutter_root</item>
+    <item name="action_sound" type="id">action_sound</item>
+</resources>
