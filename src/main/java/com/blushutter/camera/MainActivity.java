@@ -850,6 +850,7 @@ public class MainActivity extends Activity {
         }
     }
 
+    // SmoothZoom is not available on Samsung Galaxy Camera
     void zoomTo(int value) {
         try {
             //if (_currentZoom != value) {
