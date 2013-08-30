@@ -200,8 +200,12 @@ public class CameraHelper {
                 }
                 else {
                     size = cameraParameters.getPictureSize();
+                    // this picture size seems to be too big
+                    // getting OOM error when trying to decode they bytes
                     size.width = 2592;
                     size.height = 1944;
+//                    size.width = 1024;
+//                    size.height = 768;
                     ((MainActivity) activity).SelectedPictureSize = size;
                 }
 

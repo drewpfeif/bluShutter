@@ -416,6 +416,7 @@ public class MainActivity extends Activity {
             }
 
             mSelectedCamera = CameraHelper.openSelectedCamera(mSelectedCameraId, this);
+            mSelectedCamera.setParameters(CameraParameters);
 
             if (mCommandService != null) {
                 if (mCommandService.getState() == BluetoothCommandService.STATE_NONE) {
@@ -464,7 +465,7 @@ public class MainActivity extends Activity {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_resolution:
-                settingsMenuClicked();
+                resolutionMenuClicked();
                 break;
             case R.id.action_sound:
                 soundMenuClicked();
@@ -481,7 +482,7 @@ public class MainActivity extends Activity {
         SoundManager.getSingleton().SoundOn = !SoundManager.getSingleton().SoundOn;
     }
 
-    private void settingsMenuClicked() {
+    private void resolutionMenuClicked() {
 
         if (SupportedPictureSizes == null)
             return;

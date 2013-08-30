@@ -94,7 +94,7 @@ public class HandlePictureStorage implements Camera.PictureCallback {
 
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inMutable = true;
-            //options.inSampleSize = 8;
+            //options.inSampleSize = 4;
 
             if (bmp != null) {
                 bmp.recycle();
@@ -139,6 +139,7 @@ public class HandlePictureStorage implements Camera.PictureCallback {
                 endTransfer = null;
                 b = null;
 
+                //mCommandService.write(saveBytes.length);
                 mCommandService.write(destination);
 
                 // play sound
