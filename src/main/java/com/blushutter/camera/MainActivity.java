@@ -206,7 +206,7 @@ public class MainActivity extends Activity {
                     }
                 })
                 // Set the action buttons
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.buttonOk, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
 
@@ -296,15 +296,15 @@ public class MainActivity extends Activity {
             }
             else {
                 AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(this);
-                myAlertDialog.setTitle("Not Connected to Bluetooth Device");
-                myAlertDialog.setMessage("A Bluetooth connection is needed before you can take photos.  Would you like to connect to a device now? ");
-                myAlertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                myAlertDialog.setTitle(getString(R.string.bluetoothDialogTitle));
+                myAlertDialog.setMessage(getString(R.string.bluetoothDialogMessage));
+                myAlertDialog.setPositiveButton(getString(R.string.buttonYes), new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface arg0, int arg1) {
                         setupBluetooth();
                     }});
 
-                myAlertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                myAlertDialog.setNegativeButton(getString(R.string.buttonNo), new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface arg0, int arg1) {
                         // nothing to do here
@@ -496,7 +496,7 @@ public class MainActivity extends Activity {
 
             // show list in dialog
             AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-            builder.setTitle(mContext.getString(R.string.bluetoothDialog));
+            builder.setTitle(getString(R.string.resolutionDialogTitle));
             builder.setSingleChoiceItems(pictureSizesAsString, SelectedPictureSizeIndex,
                     new DialogInterface.OnClickListener() {
                         // indexSelected contains the index of item (of which checkbox checked)
@@ -508,7 +508,7 @@ public class MainActivity extends Activity {
                         }
                     })
                     // Set the action buttons
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(getString(R.string.buttonOk), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
 
@@ -866,12 +866,11 @@ public class MainActivity extends Activity {
     void showNoCameraDialog() {
         try {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("No Camera");
+            builder.setTitle(getString(R.string.noCameraDialogTitle));
             builder.setMessage(
-                    "Device does not have required camera support. " +
-                            "Some features will not be available."
+                    getString(R.string.noCameraDialogMessage)
             );
-            builder.setPositiveButton("Continue", null);
+            builder.setPositiveButton(getString(R.string.noCameraDialogPositiveButton), null);
             AlertDialog dialog = builder.create();
             dialog.setCanceledOnTouchOutside(false);
             dialog.show();

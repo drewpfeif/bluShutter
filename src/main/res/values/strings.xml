@@ -5,5 +5,18 @@
     <string name="action_resolution">Resolution</string>
     <string name="bluetoothDialog">Select Bluetooth Device</string>
     <string name="action_sound">Sound On/Off</string>
+    <string name="resolutionDialogTitle">Select Resolution</string>
+    <string name="noCameraDialogTitle">No Camera</string>
+    <string name="noCameraDialogMessage">Device does not have required camera support. Some features
+        will not be available.
+    </string>
+    <string name="noCameraDialogPositiveButton">Continue</string>
+    <string name="buttonOk">OK</string>
+    <string name="buttonYes">Yes</string>
+    <string name="buttonNo">No</string>
+    <string name="bluetoothDialogTitle">Not Connected to Bluetooth Device</string>
+    <string name="bluetoothDialogMessage">A Bluetooth connection is needed before you can take
+        photos. Would you like to connect to a device now?
+    </string>
 
 </resources>

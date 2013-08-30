@@ -127,19 +127,19 @@ public class HandlePictureStorage implements Camera.PictureCallback {
 
             if (saveBytes!=null && mCommandService !=null) {
 
-//                byte[] byteLength = ("SSX" + String.format("%09d", saveBytes.length)).getBytes();
-//                byte[] endTransfer = "SSXTHISISTHEENDSSX".getBytes();
-//                byte[] destination = new byte[byteLength.length + saveBytes.length + endTransfer.length];
-//
-//                System.arraycopy(byteLength, 0, destination, 0, byteLength.length);
-//                System.arraycopy(saveBytes, 0, destination, byteLength.length, saveBytes.length);
-//                System.arraycopy(endTransfer, 0, destination, byteLength.length + saveBytes.length, endTransfer.length);
-//
-//                byteLength = null;
-//                endTransfer = null;
-//                b = null;
+                byte[] byteLength = ("SSX" + String.format("%09d", saveBytes.length)).getBytes();
+                byte[] endTransfer = "SSXTHISISTHEENDSSX".getBytes();
+                byte[] destination = new byte[byteLength.length + saveBytes.length + endTransfer.length];
 
-                mCommandService.write(saveBytes);
+                System.arraycopy(byteLength, 0, destination, 0, byteLength.length);
+                System.arraycopy(saveBytes, 0, destination, byteLength.length, saveBytes.length);
+                System.arraycopy(endTransfer, 0, destination, byteLength.length + saveBytes.length, endTransfer.length);
+
+                byteLength = null;
+                endTransfer = null;
+                b = null;
+
+                mCommandService.write(destination);
 
                 // play sound
                 if (SoundManager.getSingleton().SoundOn)
