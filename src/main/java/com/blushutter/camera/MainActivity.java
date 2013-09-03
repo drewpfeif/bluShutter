@@ -776,7 +776,7 @@ public class MainActivity extends Activity {
             case KeyEvent.KEYCODE_FOCUS:
                 // this event is continuously called
                 // when the shutter button is press half way
-                if (action == KeyEvent.ACTION_DOWN) {
+                if (action == KeyEvent.ACTION_DOWN && event.getFlags() != 40) {
                     //call autofocus
                     if (!mIsFocusing) {
 
@@ -814,10 +814,17 @@ public class MainActivity extends Activity {
 //                else {
 //                    _isZoomingIn = false;
 //                }
-                if (action == KeyEvent.ACTION_UP) {
+
+                // I think scan code 545 means full press and 533 means half press
+                // so...every time there is a full press there is also a half press
+                if (action == KeyEvent.ACTION_UP && event.getScanCode() != 545) {
                     zoomIn();
+                    return true;
                 }
-                return true;
+                else {
+                    return true;
+                }
+
             case KeyEvent.KEYCODE_ZOOM_OUT:
 //                if (action == KeyEvent.ACTION_DOWN) {
 //
@@ -831,10 +838,16 @@ public class MainActivity extends Activity {
 //                    //zoomIn();
 //                    _isZoomingOut = false;
 //                }
-                if (action == KeyEvent.ACTION_UP) {
+
+                // I think scan code 546 means full press and 534 means half press
+                // so...every time there is a full press there is also a half press
+                if (action == KeyEvent.ACTION_UP && event.getScanCode() != 546) {
                     zoomOut();
+                    return true;
                 }
-                return true;
+                else {
+                    return true;
+                }
             default:
                 return super.dispatchKeyEvent(event);
         }
