@@ -1,4 +1,4 @@
-blushutter
+bluShutter
 ==========
 
 Android camera app that sends photos via Bluetooth.
