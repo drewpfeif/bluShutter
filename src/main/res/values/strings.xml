@@ -18,5 +18,9 @@
     <string name="bluetoothDialogMessage">A Bluetooth connection is needed before you can take
         photos. Would you like to connect to a device now?
     </string>
+    <string name="btnBluetoothDevicesDesc">Select Bluetooth Device</string>
+    <string name="btnResolutionDesc">Select Resolution</string>
+    <string name="btnSavePhotoDesc">Save Photo To Camera</string>
+    <string name="btnSoundDesc">Turn Sound On/Off</string>
 
 </resources>

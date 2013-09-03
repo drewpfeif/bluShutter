@@ -13,7 +13,7 @@ import android.util.Log;
 public class SoundManager {
 
     private static final String LOG_TAG = MainActivity.LOG_TAG + ".SoundManager";
-    public boolean SoundOn;
+    //public boolean SoundOn;
     public final static int SOUND_SHUTTER = 0;
     public final static int SOUND_NOTIFICATION = 1;
     public final static int SOUND_FOCUS_END = 2;
@@ -40,7 +40,7 @@ public class SoundManager {
      */
     private SoundManager() {
         mSoundPool = new SoundPool(3, AudioManager.STREAM_NOTIFICATION, 0);
-        SoundOn = true;
+        //SoundOn = true;
     }
 
     public void preload(Context ctx) {

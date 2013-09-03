@@ -16,12 +16,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,12 +64,16 @@ public class MainActivity extends Activity {
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothCommandService mCommandService = null;
     private Boolean mConnectionIsOpen = false;
+    private ImageButton mImageButton;
+    private ToggleButton mToggleButton;
 
     // public variables
     public Camera.Parameters CameraParameters = null;
     public Camera.Size SelectedPictureSize = null;
     public List<Camera.Size> SupportedPictureSizes = null;
     public int SelectedPictureSizeIndex = NOT_SET;
+    public static Boolean SavePhotos = false;
+    public static Boolean SoundOn = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,10 +83,11 @@ public class MainActivity extends Activity {
 
             setVolumeControlStream(AudioManager.STREAM_SYSTEM);
 
+            LoadPreferences();
+
             // create class-wide toast instance
             mToastText = Toast.makeText(this, "", Toast.LENGTH_SHORT);
 
-            LoadPreferences();
 
             if (savedInstanceState == null) {
                 setContentView(R.layout.activity_main);
@@ -93,6 +98,7 @@ public class MainActivity extends Activity {
                     showNoCameraDialog();
                 }
                 else {
+                    setupButtons();
                     setupCamera();
                     setupBluetooth();
                 }
@@ -105,6 +111,59 @@ public class MainActivity extends Activity {
         catch (Exception e) {
             Log.e(LOG_TAG, "Error in onCreate: " + e.getMessage());
         }
+    }
+
+    private void setupButtons() {
+
+        // btnSound
+        mToggleButton = (ToggleButton) findViewById(R.id.btnSound);
+
+        mToggleButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                SoundOn = ((ToggleButton) v).isChecked();
+                //SoundManager.getSingleton().preload(v.getContext());
+                //SoundManager.getSingleton().SoundOn = soundOn;
+                if (SoundOn) {
+                    displayText("Sound is On");
+                }
+                else {
+                    displayText("Sound is Off");
+                }
+            }
+        });
+
+        // btnSavePhoto
+        mToggleButton = (ToggleButton) findViewById(R.id.btnSavePhoto);
+
+        mToggleButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                SavePhotos = ((ToggleButton) v).isChecked();
+                if (SavePhotos) {
+                    displayText("Save to Camera is On");
+                }
+                else {
+                    displayText("Save to Camera is Off");
+                }
+            }
+        });
+
+        // btnResolution
+        mImageButton = (ImageButton) findViewById(R.id.btnResolution);
+
+        mImageButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                btnResolutionClicked();
+            }
+        });
+
+        // btnBluetoothDevices
+        mImageButton = (ImageButton) findViewById(R.id.btnBluetoothDevices);
+
+        mImageButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                showBluetoothDeviceSelection();
+            }
+        });
     }
 
     boolean checkCameras(Context context) {
@@ -288,7 +347,7 @@ public class MainActivity extends Activity {
 
             if (mConnectionIsOpen) {
                 // play sound
-                if (SoundManager.getSingleton().SoundOn)
+                if (SoundOn)
                     SoundManager.getSingleton().play(SoundManager.SOUND_SHUTTER);
 
                 // take picture
@@ -350,7 +409,7 @@ public class MainActivity extends Activity {
                         }
                         break;
                     case MESSAGE_DEVICE_NAME:
-                        // save the connected device's name
+                        // save_off the connected device's name
                         String mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
 
                         displayText("Connected to " + mConnectedDeviceName + "...");
@@ -392,12 +451,12 @@ public class MainActivity extends Activity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.main, menu);
+//        return true;
+//    }
 
     @Override
     protected void onResume() {
@@ -458,31 +517,41 @@ public class MainActivity extends Activity {
 
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        boolean handled = true;
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        boolean handled = true;
+//
+//        int id = item.getItemId();
+//        switch (id) {
+//            case R.id.action_resolution:
+//                resolutionMenuClicked();
+//                break;
+//            case R.id.action_sound:
+//                soundMenuClicked();
+//                break;
+//            default:
+//                handled = super.onOptionsItemSelected(item);
+//        }
+//
+//        return handled;
+//    }
+//
+//    private void soundMenuClicked() {
+//        SoundManager.getSingleton().preload(this);
+//        SoundManager.getSingleton().SoundOn = !SoundManager.getSingleton().SoundOn;
+//
+//        mImageButton = (ImageButton) findViewById(R.id.btnSound);
+//
+//        if (SoundManager.getSingleton().SoundOn) {
+//            mImageButton.setImageResource(R.drawable.sound_on);
+//        }
+//        else {
+//            mImageButton.setImageResource(R.drawable.sound_off);
+//        }
+//
+//    }
 
-        int id = item.getItemId();
-        switch (id) {
-            case R.id.action_resolution:
-                resolutionMenuClicked();
-                break;
-            case R.id.action_sound:
-                soundMenuClicked();
-                break;
-            default:
-                handled = super.onOptionsItemSelected(item);
-        }
-
-        return handled;
-    }
-
-    private void soundMenuClicked() {
-        SoundManager.getSingleton().preload(this);
-        SoundManager.getSingleton().SoundOn = !SoundManager.getSingleton().SoundOn;
-    }
-
-    private void resolutionMenuClicked() {
+    private void btnResolutionClicked() {
 
         if (SupportedPictureSizes == null)
             return;
@@ -505,7 +574,7 @@ public class MainActivity extends Activity {
                         public void onClick(DialogInterface dialog, int indexSelected) {
 
                             SelectedPictureSizeIndex = indexSelected;
-
+                            SelectedPictureSize = SupportedPictureSizes.get(indexSelected);
                         }
                     })
                     // Set the action buttons
@@ -535,12 +604,13 @@ public class MainActivity extends Activity {
 
                                 if (SelectedPictureSize != null) {
                                     if (CameraParameters != null) {
+
                                         CameraParameters.setPictureSize(SelectedPictureSize.width, SelectedPictureSize.height);
                                         mSelectedCamera.setParameters(CameraParameters);
+
+                                        displayText("Resolution is set to " + pictureSizesAsString[SelectedPictureSizeIndex]);
+
                                     }
-
-                                    displayText("Resolution is set to " + pictureSizesAsString[SelectedPictureSizeIndex]);
-
                                 }
 
                                 //Dismiss once everything is OK.
@@ -558,6 +628,83 @@ public class MainActivity extends Activity {
             Log.e(LOG_TAG, "Error in settingsMenuClick: " + e.getMessage());
         }
     }
+
+//    private void resolutionMenuClicked() {
+//
+//        if (SupportedPictureSizes == null)
+//            return;
+//
+//        // create an array of strings of the form 320x240
+//        final String[] pictureSizesAsString = new String[SupportedPictureSizes.size()];
+//        int index = 0;
+//
+//        try {
+//            for (Camera.Size pictureSize: SupportedPictureSizes)
+//                pictureSizesAsString[index++] = String.format(CAMERA_SIZE_DISPLAY_FORMAT, pictureSize.width, pictureSize.height);
+//
+//            // show list in dialog
+//            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+//            builder.setTitle(getString(R.string.resolutionDialogTitle));
+//            builder.setSingleChoiceItems(pictureSizesAsString, SelectedPictureSizeIndex,
+//                    new DialogInterface.OnClickListener() {
+//                        // indexSelected contains the index of item (of which checkbox checked)
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int indexSelected) {
+//
+//                            SelectedPictureSizeIndex = indexSelected;
+//
+//                        }
+//                    })
+//                    // Set the action buttons
+//                    .setPositiveButton(getString(R.string.buttonOk), new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int id) {
+//
+//                            //Do nothing here. We override the onclick
+//
+//                        }
+//                    });
+//
+//            // create alert dialog
+//            final AlertDialog alertDialog = builder.create();
+//
+//            alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+//
+//                @Override
+//                public void onShow(DialogInterface dialog) {
+//
+//                    Button b = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+//                    if (b != null) {
+//                        b.setOnClickListener(new View.OnClickListener() {
+//
+//                            @Override
+//                            public void onClick(View view) {
+//
+//                                if (SelectedPictureSize != null) {
+//                                    if (CameraParameters != null) {
+//                                        CameraParameters.setPictureSize(SelectedPictureSize.width, SelectedPictureSize.height);
+//                                        mSelectedCamera.setParameters(CameraParameters);
+//                                    }
+//
+//                                    displayText("Resolution is set to " + pictureSizesAsString[SelectedPictureSizeIndex]);
+//
+//                                }
+//
+//                                //Dismiss once everything is OK.
+//                                alertDialog.dismiss();
+//                            }
+//                        });
+//                    }
+//                }
+//            });
+//
+//            // show it
+//            alertDialog.show();
+//        }
+//        catch (Exception e) {
+//            Log.e(LOG_TAG, "Error in settingsMenuClick: " + e.getMessage());
+//        }
+//    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -639,10 +786,10 @@ public class MainActivity extends Activity {
                             @Override
                             public void onAutoFocus(boolean success, Camera camera) {
                                 if (success) {
-                                    if (SoundManager.getSingleton().SoundOn)
+                                    if (SoundOn)
                                         SoundManager.getSingleton().play(SoundManager.SOUND_FOCUS_END);
                                 } else {
-                                    if (SoundManager.getSingleton().SoundOn)
+                                    if (SoundOn)
                                         SoundManager.getSingleton().play(SoundManager.SOUND_FOCUS_FAIL);
                                 }
                             }
@@ -718,7 +865,7 @@ public class MainActivity extends Activity {
         editor.putString(SELECTED_BLUETOOTH_ID_KEY , mSelectedBluetoothId);
         editor.putInt(SELECTED_CAMERA_ID_KEY, mSelectedCameraId);
         editor.putInt(SELECTED_PICTURE_SIZE, SelectedPictureSizeIndex);
-        editor.putBoolean(SELECTED_SOUND_ON, SoundManager.getSingleton().SoundOn);
+        editor.putBoolean(SELECTED_SOUND_ON, SoundOn);
         editor.commit();
     }
 
@@ -747,7 +894,7 @@ public class MainActivity extends Activity {
         mSelectedCameraId = sharedPreferences.getInt(SELECTED_CAMERA_ID_KEY, NOT_SET);
         SelectedPictureSizeIndex = sharedPreferences.getInt(SELECTED_PICTURE_SIZE, NOT_SET);
         SoundManager.getSingleton().preload(this);
-        SoundManager.getSingleton().SoundOn = sharedPreferences.getBoolean(SELECTED_SOUND_ON, true);
+        SoundOn = sharedPreferences.getBoolean(SELECTED_SOUND_ON, true);
     }
 
 //    private void submitFocusAreaRect(final Rect touchRect)
@@ -852,17 +999,17 @@ public class MainActivity extends Activity {
     }
 
     // SmoothZoom is not available on Samsung Galaxy Camera
-    void zoomTo(int value) {
-        try {
-            //if (_currentZoom != value) {
-            mSelectedCamera.stopSmoothZoom();
-            mSelectedCamera.startSmoothZoom(value);
-            //}
-        }
-        catch (Exception e) {
-            Log.e(LOG_TAG, "Error in zoomTo: " + e.getMessage());
-        }
-    }
+//    void zoomTo(int value) {
+//        try {
+//            //if (_currentZoom != value) {
+//            mSelectedCamera.stopSmoothZoom();
+//            mSelectedCamera.startSmoothZoom(value);
+//            //}
+//        }
+//        catch (Exception e) {
+//            Log.e(LOG_TAG, "Error in zoomTo: " + e.getMessage());
+//        }
+//    }
 
     void showNoCameraDialog() {
         try {

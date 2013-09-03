@@ -4,11 +4,17 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 public class HandlePictureStorage implements Camera.PictureCallback {
     private static final String LOG_TAG = MainActivity.LOG_TAG + ".HandlePictureStorage";
@@ -17,11 +23,10 @@ public class HandlePictureStorage implements Camera.PictureCallback {
     private static BluetoothCommandService mCommandService = null;
     private Handler mHandler = null;
 
-//    File file = null;
-//    String filePath = null;
+    File file = null;
+    String filePath = null;
 
     ByteArrayOutputStream stream;
-    //    OutputStream outputStream;
     Bitmap bmp = null;
     byte[] b = null;
 
@@ -46,9 +51,10 @@ public class HandlePictureStorage implements Camera.PictureCallback {
 
         try {
 
-//            file = CameraHelper.generateTimeStampPhotoFile();
-//            filePath = file.getPath();
-//            String fileName = file.getName();
+            if (MainActivity.SavePhotos) {
+                file = CameraHelper.generateTimeStampPhotoFile();
+                filePath = file.getPath();
+            }
 
             b = bytes;
 
@@ -65,17 +71,18 @@ public class HandlePictureStorage implements Camera.PictureCallback {
             //Toast.makeText(mFromContext, "Picture saved as " + fileName, Toast.LENGTH_LONG).show();
             Toast.makeText(mFromContext, "Picture sent...", Toast.LENGTH_LONG).show();
 
+            if (MainActivity.SavePhotos) {
             // add photo to media store
-//            final Runnable r2 = new Runnable()
-//            {
-//                public void run()
-//                {
-//                    addPhotoToMediaStore(filePath);
-//                }
-//            };
-//
-//            mHandler.post(r2);
+                final Runnable r2 = new Runnable()
+                {
+                    public void run()
+                    {
+                        addPhotoToMediaStore(filePath);
+                    }
+                };
 
+                mHandler.post(r2);
+            }
         }
         catch (Exception e) {
             Log.e(LOG_TAG, "Error accessing photo output file: " + e.getMessage());
@@ -108,15 +115,16 @@ public class HandlePictureStorage implements Camera.PictureCallback {
             bmp.recycle();
             bmp = null;
 
-            // save the file
-//            outputStream = new BufferedOutputStream(new FileOutputStream(file));
-//            outputStream.write(saveBytes);
-//            outputStream.flush();
-//            outputStream.close();
-//            outputStream = null;
-//
-//            file = null;
+            if (MainActivity.SavePhotos) {
+                // save_off the file
+                OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file));
+                outputStream.write(saveBytes);
+                outputStream.flush();
+                outputStream.close();
+                outputStream = null;
 
+                file = null;
+            }
         }
         catch (Exception e) {
             Log.e(LOG_TAG, "Error in saveFile: " + e.getMessage());
@@ -143,7 +151,7 @@ public class HandlePictureStorage implements Camera.PictureCallback {
                 mCommandService.write(destination);
 
                 // play sound
-                if (SoundManager.getSingleton().SoundOn)
+                if (MainActivity.SoundOn)
                     SoundManager.getSingleton().play(SoundManager.SOUND_PROCESS_DONE);
 
                 //destination = null;
@@ -156,27 +164,27 @@ public class HandlePictureStorage implements Camera.PictureCallback {
 
     }
 
-//    public static void addPhotoToMediaStore(String pathName) {
-//        String[] filesToScan = {pathName};
-//
-//        try {
-//
-//            // request Media Scanner to add photo into the Media System
-//            MediaScannerConnection.scanFile(mFromContext, filesToScan, null,
-//                    new MediaScannerConnection.OnScanCompletedListener() {
-//                        public void onScanCompleted(String filePath, Uri uri) {
-//                            mediaFileScanComplete(filePath, uri);
-//                        }
-//                    }
-//            );
-//
-//        }
-//        catch (Exception e) {
-//            Log.e(LOG_TAG, "Error in AddPhotoToMediaStore: " + e.getMessage());
-//        }
-//    }
-//
-//    private static void mediaFileScanComplete(String filePath, Uri uri) {
-//
-//    }
+    public static void addPhotoToMediaStore(String pathName) {
+        String[] filesToScan = {pathName};
+
+        try {
+
+            // request Media Scanner to add photo into the Media System
+            MediaScannerConnection.scanFile(mFromContext, filesToScan, null,
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        public void onScanCompleted(String filePath, Uri uri) {
+                            mediaFileScanComplete(filePath, uri);
+                        }
+                    }
+            );
+
+        }
+        catch (Exception e) {
+            Log.e(LOG_TAG, "Error in AddPhotoToMediaStore: " + e.getMessage());
+        }
+    }
+
+    private static void mediaFileScanComplete(String filePath, Uri uri) {
+
+    }
 }

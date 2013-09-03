@@ -142,7 +142,7 @@ public class BluetoothCommandService {
         msg.setData(bundle);
         mHandler.sendMessage(msg);
 
-        // save connected device
+        // save_off connected device
         mSavedDevice = device;
         // reset connection lost count
         mConnectionLostCount = 0;
