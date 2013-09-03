@@ -5,7 +5,6 @@ import android.content.Context;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Environment;
-import android.util.Log;
 import android.view.Surface;
 import android.view.WindowManager;
 
@@ -39,7 +38,7 @@ public class CameraHelper {
             }
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in getDisplayOrientationForCamera: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in getDisplayOrientationForCamera: " + e.getMessage());
         }
 
         return previewOrientation;
@@ -68,7 +67,7 @@ public class CameraHelper {
             }
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in getDeviceOrientationDegrees: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in getDeviceOrientationDegrees: " + e.getMessage());
         }
 
         return degrees;
@@ -94,7 +93,7 @@ public class CameraHelper {
             }
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in generateTimeStampPhotoFile: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in generateTimeStampPhotoFile: " + e.getMessage());
         }
 
         return  photoFile;
@@ -121,7 +120,7 @@ public class CameraHelper {
             }
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in generateTimeStampPhotoFileUri: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in generateTimeStampPhotoFileUri: " + e.getMessage());
         }
 
         return photoFileUri;
@@ -144,14 +143,14 @@ public class CameraHelper {
                 outputDir = new File(pictureDir, "ssx");
                 if (!outputDir.exists()) {
                     if (!outputDir.mkdirs()) {
-                        Log.e(LOG_TAG, "Failed to create directory: " + outputDir.getAbsolutePath());
+                        //Log.e(LOG_TAG, "Failed to create directory: " + outputDir.getAbsolutePath());
                         outputDir = null;
                     }
                 }
             }
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in getPhotoDirectory: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in getPhotoDirectory: " + e.getMessage());
         }
 
         return  outputDir;
@@ -173,7 +172,7 @@ public class CameraHelper {
             }
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in getFacingCameraId: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in getFacingCameraId: " + e.getMessage());
         }
 
         return  cameraId;
@@ -237,7 +236,7 @@ public class CameraHelper {
                 //camera.setZoomChangeListener((MainActivity)activity);
 
             } catch (Exception ex) {
-                Log.e(LOG_TAG, "Error opening camera: " + ex.getMessage());
+                //Log.e(LOG_TAG, "Error opening camera: " + ex.getMessage());
             }
 
         }
@@ -256,7 +255,7 @@ public class CameraHelper {
                 camera = null;
             }
             catch (Exception ex) {
-                Log.e(LOG_TAG, "Error releasing camera: " + ex.getMessage());
+                //Log.e(LOG_TAG, "Error releasing camera: " + ex.getMessage());
             }
         }
 

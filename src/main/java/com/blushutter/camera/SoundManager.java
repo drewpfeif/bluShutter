@@ -3,7 +3,6 @@ package com.blushutter.camera;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
-import android.util.Log;
 
 /**
  * Manages sounds played by the app. Since we have a limited
@@ -61,7 +60,7 @@ public class SoundManager {
         try {
             mSoundPool.play(mSoundsFD[sound], 1.0f, 1.0f, 0, 0, 1.0f);
         } catch (Exception e) {
-            Log.e(LOG_TAG, "Error Playing Sound: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error Playing Sound: " + e.getMessage());
         }
     }
 

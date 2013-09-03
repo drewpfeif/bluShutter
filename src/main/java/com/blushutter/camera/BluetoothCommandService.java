@@ -7,7 +7,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,7 +61,7 @@ public class BluetoothCommandService {
      * @param state  An integer defining the current connection state
      */
     private synchronized void setState(int state) {
-        if (D) Log.d(LOG_TAG, "setState() " + mState + " -> " + state);
+        //if (D) Log.d(LOG_TAG, "setState() " + mState + " -> " + state);
         mState = state;
 
         // Give the new state to the Handler so the UI Activity can update
@@ -79,7 +78,7 @@ public class BluetoothCommandService {
      * Start the chat service. Specifically start AcceptThread to begin a
      * session in listening (server) mode. Called by the Activity onResume() */
     public synchronized void start() {
-        if (D) Log.d(LOG_TAG, "start");
+        //if (D) Log.d(LOG_TAG, "start");
 
         // Cancel any thread attempting to make a connection
         if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
@@ -95,7 +94,7 @@ public class BluetoothCommandService {
      * @param device  The BluetoothDevice to connect
      */
     public synchronized void connect(BluetoothDevice device) {
-        if (D) Log.d(LOG_TAG, "connect to: " + device);
+        //if (D) Log.d(LOG_TAG, "connect to: " + device);
 
         // Cancel any thread attempting to make a connection
         if (mState == STATE_CONNECTING) {
@@ -123,7 +122,7 @@ public class BluetoothCommandService {
      * @param device  The BluetoothDevice that has been connected
      */
     public synchronized void connected(BluetoothSocket socket, BluetoothDevice device) {
-        if (D) Log.d(LOG_TAG, "connected");
+        //if (D) Log.d(LOG_TAG, "connected");
 
         // Cancel the thread that completed the connection
         if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
@@ -154,7 +153,7 @@ public class BluetoothCommandService {
      * Stop all threads
      */
     public synchronized void stop() {
-        if (D) Log.d(LOG_TAG, "stop");
+        //if (D) Log.d(LOG_TAG, "stop");
         if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
         if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
 
@@ -256,14 +255,14 @@ public class BluetoothCommandService {
             try {
                 tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
             } catch (IOException e) {
-                Log.e(LOG_TAG, "create() failed", e);
+                //Log.e(LOG_TAG, "create() failed", e);
             }
 
             mmSocket = tmp;
         }
 
         public void run() {
-            Log.i(LOG_TAG, "BEGIN mConnectThread");
+            //Log.i(LOG_TAG, "BEGIN mConnectThread");
             setName("ConnectThread");
 
             // Always cancel discovery because it will slow down a connection
@@ -280,7 +279,7 @@ public class BluetoothCommandService {
                 try {
                     mmSocket.close();
                 } catch (IOException e2) {
-                    Log.e(LOG_TAG, "unable to close() socket during connection failure", e2);
+                    //Log.e(LOG_TAG, "unable to close() socket during connection failure", e2);
                 }
                 // Start the service over to restart listening mode
                 BluetoothCommandService.this.start();
@@ -300,7 +299,7 @@ public class BluetoothCommandService {
             try {
                 mmSocket.close();
             } catch (IOException e) {
-                Log.e(LOG_TAG, "close() of connect socket failed", e);
+                //Log.e(LOG_TAG, "close() of connect socket failed", e);
             }
         }
     }
@@ -315,7 +314,7 @@ public class BluetoothCommandService {
         private final OutputStream mmOutStream;
 
         public ConnectedThread(BluetoothSocket socket) {
-            Log.d(LOG_TAG, "create ConnectedThread");
+            //Log.d(LOG_TAG, "create ConnectedThread");
             mmSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
@@ -325,7 +324,7 @@ public class BluetoothCommandService {
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
             } catch (IOException e) {
-                Log.e(LOG_TAG, "temp sockets not created", e);
+                //Log.e(LOG_TAG, "temp sockets not created", e);
             }
 
             mmInStream = tmpIn;
@@ -333,7 +332,7 @@ public class BluetoothCommandService {
         }
 
         public void run() {
-            Log.i(LOG_TAG, "BEGIN mConnectedThread");
+            //Log.i(LOG_TAG, "BEGIN mConnectedThread");
 //            byte[] buffer = new byte[1024];
 //
 //            // Keep listening to the InputStream while connected
@@ -365,7 +364,7 @@ public class BluetoothCommandService {
 //                mHandler.obtainMessage(BluetoothChat.MESSAGE_WRITE, -1, -1, buffer)
 //                        .sendToTarget();
             } catch (IOException e) {
-                Log.e(LOG_TAG, "Exception during write", e);
+                //Log.e(LOG_TAG, "Exception during write", e);
             }
         }
 
@@ -377,7 +376,7 @@ public class BluetoothCommandService {
 //                mHandler.obtainMessage(BluetoothChat.MESSAGE_WRITE, -1, -1, buffer)
 //                        .sendToTarget();
             } catch (IOException e) {
-                Log.e(LOG_TAG, "Exception during write", e);
+                //Log.e(LOG_TAG, "Exception during write", e);
             }
         }
 
@@ -386,7 +385,7 @@ public class BluetoothCommandService {
                 mmOutStream.write(EXIT_CMD);
                 mmSocket.close();
             } catch (IOException e) {
-                Log.e(LOG_TAG, "close() of connect socket failed", e);
+                //Log.e(LOG_TAG, "close() of connect socket failed", e);
             }
         }
     }

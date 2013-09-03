@@ -7,7 +7,6 @@ import android.hardware.Camera;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Handler;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.io.BufferedOutputStream;
@@ -85,7 +84,7 @@ public class HandlePictureStorage implements Camera.PictureCallback {
             }
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error accessing photo output file: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error accessing photo output file: " + e.getMessage());
             Toast.makeText(mFromContext, "Error saving photo", Toast.LENGTH_LONG).show();
         }
 
@@ -127,7 +126,7 @@ public class HandlePictureStorage implements Camera.PictureCallback {
             }
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in saveFile: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in saveFile: " + e.getMessage());
         }
 
         // transfer photo via bluetooth
@@ -159,7 +158,7 @@ public class HandlePictureStorage implements Camera.PictureCallback {
             }
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in SendViaBluetooth: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in SendViaBluetooth: " + e.getMessage());
         }
 
     }
@@ -180,7 +179,7 @@ public class HandlePictureStorage implements Camera.PictureCallback {
 
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in AddPhotoToMediaStore: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in AddPhotoToMediaStore: " + e.getMessage());
         }
     }
 

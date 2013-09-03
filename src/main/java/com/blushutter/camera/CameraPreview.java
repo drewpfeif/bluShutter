@@ -3,7 +3,6 @@ package com.blushutter.camera;
 import android.content.Context;
 import android.hardware.Camera;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -54,7 +53,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 mCamera.startPreview();
             }
             catch (Exception e) {
-                Log.e(LOG_TAG, "Error setting preview display: " + e.getMessage());
+                //Log.e(LOG_TAG, "Error setting preview display: " + e.getMessage());
             }
         }
     }
@@ -65,7 +64,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 mCamera.stopPreview();
             }
             catch (Exception e) {
-                Log.e(LOG_TAG, "Error stopping preview: " + e.getMessage());
+                //Log.e(LOG_TAG, "Error stopping preview: " + e.getMessage());
             }
 
         }

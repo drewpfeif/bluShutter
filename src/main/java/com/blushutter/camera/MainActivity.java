@@ -14,7 +14,6 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -109,7 +108,7 @@ public class MainActivity extends Activity {
 
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in onCreate: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in onCreate: " + e.getMessage());
         }
     }
 
@@ -176,7 +175,7 @@ public class MainActivity extends Activity {
                 hasCamera = packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA);
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in checkCameras: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in checkCameras: " + e.getMessage());
         }
 
         return hasCamera;
@@ -191,7 +190,7 @@ public class MainActivity extends Activity {
             mSelectedCameraId = CameraHelper.getFacingCameraId(Camera.CameraInfo.CAMERA_FACING_BACK);
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in setupCamera: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in setupCamera: " + e.getMessage());
         }
     }
 
@@ -245,7 +244,7 @@ public class MainActivity extends Activity {
             }
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in setupBluetooth: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in setupBluetooth: " + e.getMessage());
         }
     }
 
@@ -313,7 +312,7 @@ public class MainActivity extends Activity {
             mCommandService = new BluetoothCommandService(this, mHandler);
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in setupCommand: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in setupCommand: " + e.getMessage());
         }
 
         connectToDevice();
@@ -327,7 +326,7 @@ public class MainActivity extends Activity {
             mCommandService.connect(device);
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in connectToDevice: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in connectToDevice: " + e.getMessage());
         }
     }
 
@@ -373,7 +372,7 @@ public class MainActivity extends Activity {
             }
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in takePicture: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in takePicture: " + e.getMessage());
         }
     }
 
@@ -431,7 +430,7 @@ public class MainActivity extends Activity {
                 }
             }
             catch (Exception e) {
-                Log.e(LOG_TAG, "Error in handleMessage: " + e.getMessage());
+                //Log.e(LOG_TAG, "Error in handleMessage: " + e.getMessage());
             }
         }
     };
@@ -447,7 +446,7 @@ public class MainActivity extends Activity {
 
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in onDestroy: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in onDestroy: " + e.getMessage());
         }
     }
 
@@ -484,7 +483,7 @@ public class MainActivity extends Activity {
             }
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in onResume: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in onResume: " + e.getMessage());
         }
 
 //        if (CameraParameters == null)
@@ -510,7 +509,7 @@ public class MainActivity extends Activity {
 
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in onPause: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in onPause: " + e.getMessage());
         }
 
 
@@ -625,7 +624,7 @@ public class MainActivity extends Activity {
             alertDialog.show();
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in settingsMenuClick: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in settingsMenuClick: " + e.getMessage());
         }
     }
 
@@ -738,7 +737,7 @@ public class MainActivity extends Activity {
             SavePreferences();
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in onSaveInstanceState: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in onSaveInstanceState: " + e.getMessage());
         }
 
     }
@@ -766,7 +765,7 @@ public class MainActivity extends Activity {
                         takePicture();
                     }
                     catch (Exception e) {
-                        Log.e(LOG_TAG, "Error Taking Photo: " + e.getMessage());
+                        //Log.e(LOG_TAG, "Error Taking Photo: " + e.getMessage());
 
                         displayText("Error Taking Photo");
 
@@ -980,7 +979,7 @@ public class MainActivity extends Activity {
 
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in zoomIn: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in zoomIn: " + e.getMessage());
         }
     }
 
@@ -1007,7 +1006,7 @@ public class MainActivity extends Activity {
             displayText("Zoom Level " + mZoomLevels[currZoom]);
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in zoomOut: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in zoomOut: " + e.getMessage());
         }
     }
 
@@ -1037,7 +1036,7 @@ public class MainActivity extends Activity {
             dialog.show();
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, "Error in showNoCameraDialog: " + e.getMessage());
+            //Log.e(LOG_TAG, "Error in showNoCameraDialog: " + e.getMessage());
         }
     }
 
