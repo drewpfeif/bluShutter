@@ -95,6 +95,8 @@ public class MainActivity extends Activity {
             if (savedInstanceState == null) {
                 setContentView(R.layout.activity_main);
 
+                updateStatus("Not Connected");
+
                 boolean hasCamera = checkCameras(this);
 
                 if (!hasCamera) {
@@ -113,6 +115,7 @@ public class MainActivity extends Activity {
         }
         catch (Exception e) {
             //Log.e(LOG_TAG, "Error in onCreate: " + e.getMessage());
+            updateStatus("Error");
         }
     }
 
@@ -209,6 +212,7 @@ public class MainActivity extends Activity {
         else {
             textView.setText("");
         }
+
     }
 
     private void setupBluetooth() {
@@ -218,7 +222,8 @@ public class MainActivity extends Activity {
             mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
             if (mBluetoothAdapter == null) {
-                displayText("Bluetooth is not available");
+                //displayText("Bluetooth is not available");
+                updateStatus("Bluetooth is not available");
                 finish();
             }
             else {
@@ -255,7 +260,8 @@ public class MainActivity extends Activity {
                         setupCommand();
                     }
 
-                    displayText("Connecting to " + mSelectedBluetoothId + "...");
+                    //displayText("Connecting to " + mSelectedBluetoothId + "...");
+                    updateStatus("Connecting to " + mSelectedBluetoothId + "...");
 
                 }
             }
@@ -309,7 +315,8 @@ public class MainActivity extends Activity {
 
                             setupCommand();
 
-                            displayText("Connecting to " + mSelectedBluetoothId + "...");
+                            //displayText("Connecting to " + mSelectedBluetoothId + "...");
+                            updateStatus("Connecting to " + mSelectedBluetoothId + "...");
 
                             //Dismiss once everything is OK.
                             alertDialog.dismiss();
@@ -428,7 +435,8 @@ public class MainActivity extends Activity {
                         // save_off the connected device's name
                         String mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
 
-                        displayText("Connected to " + mConnectedDeviceName + "...");
+                        //displayText("Connected to " + mConnectedDeviceName);
+                        updateStatus("Connected to " + mConnectedDeviceName);
 
                         break;
                     case MESSAGE_TOAST:
@@ -441,7 +449,8 @@ public class MainActivity extends Activity {
                             showBluetoothDeviceSelection();
                         }
 
-                        displayText(t);
+                        //displayText(t);
+                        updateStatus(t);
 
                         break;
                 }
@@ -498,6 +507,9 @@ public class MainActivity extends Activity {
             if (mCommandService != null) {
                 if (mCommandService.getState() == BluetoothCommandService.STATE_NONE) {
                     mCommandService.start();
+
+                    connectToDevice();
+
                 }
             }
         }
@@ -1111,4 +1123,12 @@ public class MainActivity extends Activity {
         mToastText.show();
     }
 
+    public void updateStatus(final String status) {
+
+        TextView textView = (TextView) this.findViewById(R.id.textView2);
+        if (textView != null) {
+            textView.setText(status);
+        }
+
+    }
 }
