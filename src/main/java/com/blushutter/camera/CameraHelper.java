@@ -75,7 +75,7 @@ public class CameraHelper {
 
     public static File generateTimeStampPhotoFile() {
 
-        // request the path to the ssx folder in the photo folder
+        // request the path to the bluShutter folder in the photo folder
         File photoFile = null;
         File outputDir = getPhotoDirectory();
 
@@ -86,7 +86,7 @@ public class CameraHelper {
                 String photoFileName = "IMG_" + timestamp + ".jpg";
 
                 // create File instance representing the photo file
-                // within the ssx subfolder of the photos folder
+                // within the bluShutter subfolder of the photos folder
                 photoFile = new File(outputDir, photoFileName);
 
 
@@ -103,7 +103,7 @@ public class CameraHelper {
     public static Uri generateTimeStampPhotoFileUri() {
         Uri photoFileUri = null;
 
-        // request the path to the ssx folder in the photo folder
+        // request the path to the bluShutter folder in the photo folder
         File outputDir = getPhotoDirectory();
 
         try {
@@ -113,7 +113,7 @@ public class CameraHelper {
                 String photoFileName = "IMG_" + timestamp + ".jpg";
 
                 // create File instance representing the photo file
-                // within the ssx subfolder of the photos folder
+                // within the bluShutter subfolder of the photos folder
                 File photoFile = new File(outputDir, photoFileName);
                 // convert the file path to a URI
                 photoFileUri = Uri.fromFile(photoFile);
@@ -139,8 +139,8 @@ public class CameraHelper {
                 File pictureDir =
                         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
 
-                // create a subfolder named ssx
-                outputDir = new File(pictureDir, "ssx");
+                // create a subfolder named bluShutter
+                outputDir = new File(pictureDir, "bluShutter");
                 if (!outputDir.exists()) {
                     if (!outputDir.mkdirs()) {
                         //Log.e(LOG_TAG, "Failed to create directory: " + outputDir.getAbsolutePath());

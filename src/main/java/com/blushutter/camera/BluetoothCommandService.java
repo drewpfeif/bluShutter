@@ -15,8 +15,7 @@ import java.util.UUID;
 
 public class BluetoothCommandService {
     // Debugging
-    private static final String LOG_TAG = MainActivity.LOG_TAG + ".BluetoothCommandService";
-    private static final boolean D = true;
+    //private static final String LOG_TAG = MainActivity.LOG_TAG + ".BluetoothCommandService";
 
     // Unique UUID for this application
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
