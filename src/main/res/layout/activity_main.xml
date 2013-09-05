@@ -64,9 +64,25 @@
 
     </LinearLayout>
 
-    <com.blushutter.camera.CameraPreview
+    <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/cameraPreview"/>
+        android:layout_height="fill_parent">
+
+        <com.blushutter.camera.CameraPreview
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/cameraPreview"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Zoom"
+            android:id="@+id/textView"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true" />
+
+    </RelativeLayout>
+
 
 </LinearLayout>

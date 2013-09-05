@@ -19,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -39,6 +40,7 @@ public class MainActivity extends Activity {
     private static final String SELECTED_PICTURE_SIZE = "SelectedPictureSizeIndex";
     private static final String SELECTED_BLUETOOTH_ID_KEY = "mSelectedBluetoothId";
     private static final String CAMERA_SIZE_DISPLAY_FORMAT = "%d x %d";
+    private static final long ZOOM_TIME = 500;
 
     // Message types sent from the BluetoothChatService Handler
     public static final int MESSAGE_STATE_CHANGE = 1;
@@ -65,6 +67,8 @@ public class MainActivity extends Activity {
     private Boolean mConnectionIsOpen = false;
     private ImageButton mImageButton;
     private ToggleButton mToggleButton;
+    private long mStartPressTime = 0;
+    private Boolean mZoomStarted = false;
 
     // public variables
     public Camera.Parameters CameraParameters = null;
@@ -191,6 +195,19 @@ public class MainActivity extends Activity {
         }
         catch (Exception e) {
             //Log.e(LOG_TAG, "Error in setupCamera: " + e.getMessage());
+        }
+    }
+
+    private void displayZoom() {
+
+        TextView textView = (TextView) this.findViewById(R.id.textView);
+
+        if (CameraParameters != null) {
+            int currentZoom = CameraParameters.getZoom();
+            textView.setText(mZoomLevels[currentZoom] + " Zoom");
+        }
+        else {
+            textView.setText("");
         }
     }
 
@@ -475,6 +492,8 @@ public class MainActivity extends Activity {
 
             mSelectedCamera = CameraHelper.openSelectedCamera(mSelectedCameraId, this);
             mSelectedCamera.setParameters(CameraParameters);
+
+            displayZoom();
 
             if (mCommandService != null) {
                 if (mCommandService.getState() == BluetoothCommandService.STATE_NONE) {
@@ -803,50 +822,91 @@ public class MainActivity extends Activity {
                 }
                 return true;
             case KeyEvent.KEYCODE_ZOOM_IN:
-//                if (action == KeyEvent.ACTION_DOWN) {
-//
-//                    if (!_isZoomingIn) {
-//                        _isZoomingIn = true;
-//                        zoomIn();
-//                    }
-//                }
-//                else {
-//                    _isZoomingIn = false;
-//                }
+                if (action == KeyEvent.ACTION_DOWN && event.getScanCode() == 545) {
 
-                // I think scan code 545 means full press and 533 means half press
-                // so...every time there is a full press there is also a half press
-                if (action == KeyEvent.ACTION_UP && event.getScanCode() != 545) {
-                    zoomIn();
-                    return true;
+                    // check the amount of time the zoom button has been press
+                    long eventTime = event.getEventTime();
+
+                    if (mStartPressTime == 0) {
+                        mStartPressTime = eventTime;
+                    }
+
+                    // increment the zoom
+                    if (eventTime - mStartPressTime >= ZOOM_TIME) {
+                        mStartPressTime = 0;
+                        zoomIn();
+                    }
+                    else if (mZoomStarted == false) {
+                        mZoomStarted = true;
+                        zoomIn();
+                    }
+                }
+                else if (action == KeyEvent.ACTION_DOWN && event.getScanCode() != 545) {
+                    // do nothing
+                }
+                else if (action == KeyEvent.ACTION_UP && event.getScanCode() == 545) {
+                    displayZoom();
                 }
                 else {
-                    return true;
+                    mStartPressTime = 0;
+                    mZoomStarted = false;
                 }
+
+                return true;
+
+//                // I think scan code 545 means full press and 533 means half press
+//                // so...every time there is a full press there is also a half press
+//                if (action == KeyEvent.ACTION_UP && event.getScanCode() != 545) {
+//                    zoomIn();
+//                    return true;
+//                }
+//                else {
+//                    return true;
+//                }
 
             case KeyEvent.KEYCODE_ZOOM_OUT:
-//                if (action == KeyEvent.ACTION_DOWN) {
-//
-//                    if (!_isZoomingOut) {
-//                        _isZoomingOut = true;
-//                        zoomOut();
-//                    }
-//
-//                }
-//                else {
-//                    //zoomIn();
-//                    _isZoomingOut = false;
-//                }
+                if (action == KeyEvent.ACTION_DOWN && event.getScanCode() == 546) {
 
-                // I think scan code 546 means full press and 534 means half press
-                // so...every time there is a full press there is also a half press
-                if (action == KeyEvent.ACTION_UP && event.getScanCode() != 546) {
-                    zoomOut();
-                    return true;
+                    // check the amount of time the zoom button has been press
+                    long eventTime = event.getEventTime();
+
+                    if (mStartPressTime == 0) {
+                        mStartPressTime = eventTime;
+                    }
+
+                    // increment the zoom
+                    if (eventTime - mStartPressTime >= ZOOM_TIME) {
+                        mStartPressTime = 0;
+                        zoomOut();
+                    }
+                    else if (mZoomStarted == false) {
+                        mZoomStarted = true;
+                        zoomOut();
+                    }
+                }
+                else if (action == KeyEvent.ACTION_DOWN && event.getScanCode() != 546) {
+                    // do nothing
+                }
+                else if (action == KeyEvent.ACTION_UP && event.getScanCode() == 546) {
+                    displayZoom();
                 }
                 else {
-                    return true;
+                    mStartPressTime = 0;
+                    mZoomStarted = false;
                 }
+
+                return true;
+
+//                // I think scan code 546 means full press and 534 means half press
+//                // so...every time there is a full press there is also a half press
+//                if (action == KeyEvent.ACTION_UP && event.getScanCode() != 546) {
+//                    zoomOut();
+//                    return true;
+//                }
+//                else {
+//                    return true;
+//                }
+
             default:
                 return super.dispatchKeyEvent(event);
         }
@@ -960,6 +1020,8 @@ public class MainActivity extends Activity {
     void zoomIn() {
         try {
 
+            if (!mZoomStarted) return;
+
             int currZoom = mSelectedCamera.getParameters().getZoom();
             int maxZoom = mSelectedCamera.getParameters().getMaxZoom();
 
@@ -968,14 +1030,13 @@ public class MainActivity extends Activity {
 //            Log.v(LOG_TAG, "Current Zoom: " + currZoom);
 //
                 currZoom++;
+                CameraParameters = mSelectedCamera.getParameters();
                 CameraParameters.setZoom(Math.min(currZoom, maxZoom));
                 mSelectedCamera.setParameters(CameraParameters);
-//
-//            currZoom = CameraParameters.getZoom();
-//
-            }
 
-            displayText("Zoom Level " + mZoomLevels[currZoom]);
+                displayZoom();
+
+            }
 
         }
         catch (Exception e) {
@@ -986,24 +1047,28 @@ public class MainActivity extends Activity {
     void zoomOut() {
         try {
 
+            if (!mZoomStarted) return;
 
             int currZoom = mSelectedCamera.getParameters().getZoom();
 
-            if (CameraParameters.getZoom() != 0) {
+            if (currZoom != 0) {
 
 //
 //            Log.v(LOG_TAG, "Current Zoom: " + currZoom);
 //
                 currZoom--;
-                CameraParameters.setZoom(Math.max(currZoom, 0));
+                if (currZoom == 0) {
+                    CameraParameters.setZoom(0);
+                }
+                else {
+                    CameraParameters.setZoom(Math.max(currZoom, 0));
+                }
                 mSelectedCamera.setParameters(CameraParameters);
 
+                displayZoom();
 
-//
-//            currZoom = CameraParameters.getZoom();
-//
             }
-            displayText("Zoom Level " + mZoomLevels[currZoom]);
+
         }
         catch (Exception e) {
             //Log.e(LOG_TAG, "Error in zoomOut: " + e.getMessage());

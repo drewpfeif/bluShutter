@@ -221,11 +221,7 @@ public class CameraHelper {
                 cameraParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
                 cameraParameters.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
 
-
                 //Log.v(LOG_TAG, String.valueOf(cameraParameters.isSmoothZoomSupported()));
-
-//                int currentZoom = cameraParameters.getZoom();
-//                int maxZoom = cameraParameters.getMaxZoom();
 
                 ((MainActivity) activity).CameraParameters = cameraParameters;
 
