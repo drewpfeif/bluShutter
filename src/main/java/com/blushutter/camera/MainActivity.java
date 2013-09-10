@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -65,10 +64,9 @@ public class MainActivity extends Activity {
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothCommandService mCommandService = null;
     private Boolean mConnectionIsOpen = false;
-    private ImageButton mImageButton;
-    private ToggleButton mToggleButton;
     private long mStartPressTime = 0;
     private Boolean mZoomStarted = false;
+    private AlertDialog alertDialog = null;
 
     // public variables
     public Camera.Parameters CameraParameters = null;
@@ -121,14 +119,15 @@ public class MainActivity extends Activity {
 
     private void setupButtons() {
 
+        ImageButton mImageButton;
+        ToggleButton mToggleButton;
+
         // btnSound
         mToggleButton = (ToggleButton) findViewById(R.id.btnSound);
 
         mToggleButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 SoundOn = ((ToggleButton) v).isChecked();
-                //SoundManager.getSingleton().preload(v.getContext());
-                //SoundManager.getSingleton().SoundOn = soundOn;
                 if (SoundOn) {
                     displayText("Sound is On");
                 }
@@ -222,7 +221,6 @@ public class MainActivity extends Activity {
             mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
             if (mBluetoothAdapter == null) {
-                //displayText("Bluetooth is not available");
                 updateStatus("Bluetooth is not available");
                 finish();
             }
@@ -231,21 +229,6 @@ public class MainActivity extends Activity {
                 if (!mBluetoothAdapter.isEnabled()) {
                     Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                     startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-                }
-
-                //ensureDiscoverable();
-                mBluetoothList.clear();
-
-                Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-                if (pairedDevices!=null) {
-                    // If there are paired devices
-                    if (pairedDevices.size() > 0) {
-                        // Loop through paired devices
-                        for (BluetoothDevice device : pairedDevices) {
-                            // Add the name and address to an array adapter to show in a ListView
-                            mBluetoothList.add(device.getName() + "\n" + device.getAddress());
-                        }
-                    }
                 }
 
                 if (mSelectedBluetoothId == null) {
@@ -260,7 +243,6 @@ public class MainActivity extends Activity {
                         setupCommand();
                     }
 
-                    //displayText("Connecting to " + mSelectedBluetoothId + "...");
                     updateStatus("Connecting to " + mSelectedBluetoothId + "...");
 
                 }
@@ -272,6 +254,9 @@ public class MainActivity extends Activity {
     }
 
     private void showBluetoothDeviceSelection() {
+
+        reloadBluetoothDeviceList();
+
         CharSequence[] items = mBluetoothList.toArray(new CharSequence[mBluetoothList.size()]);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
@@ -281,53 +266,83 @@ public class MainActivity extends Activity {
                     // indexSelected contains the index of item (of which checkbox checked)
                     @Override
                     public void onClick(DialogInterface dialog, int indexSelected) {
-                        //widgets.get(indexSelected).setHidden(!isChecked);
                         mSelectedBluetoothId = mBluetoothList.get(indexSelected)
                                 .substring(mBluetoothList.get(indexSelected).length() - 17);
                     }
                 })
                 // Set the action buttons
-                .setPositiveButton(R.string.buttonOk, new DialogInterface.OnClickListener() {
+                .setNeutralButton(R.string.buttonOk, new DialogInterface.OnClickListener() {
+
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-
                         //Do nothing here. We override the onclick
                     }
+
+                })
+                .setPositiveButton("Refresh", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog,int which)
+                    {
+                        showBluetoothDeviceSelection();
+                    }
+
                 });
 
         // create alert dialog
-        final AlertDialog alertDialog = builder.create();
+        if (alertDialog == null || !alertDialog.isShowing()) {
+            alertDialog = builder.create();
 
-        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
 
-            @Override
-            public void onShow(DialogInterface dialog) {
+                @Override
+                public void onShow(DialogInterface dialog) {
 
-                Button b = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                if (b!=null) {
-                    b.setOnClickListener(new View.OnClickListener() {
+                    Button b = alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+                    if (b!=null) {
+                        b.setOnClickListener(new View.OnClickListener() {
 
-                        @Override
-                        public void onClick(View view) {
+                            @Override
+                            public void onClick(View view) {
 
-                            if (mSelectedBluetoothId == null)
-                                return;
+                                if (mSelectedBluetoothId == null)
+                                    return;
 
-                            setupCommand();
+                                setupCommand();
 
-                            //displayText("Connecting to " + mSelectedBluetoothId + "...");
-                            updateStatus("Connecting to " + mSelectedBluetoothId + "...");
+                                updateStatus("Connecting to " + mSelectedBluetoothId + "...");
 
-                            //Dismiss once everything is OK.
-                            alertDialog.dismiss();
-                        }
-                    });
+                                //Dismiss once everything is OK.
+                                alertDialog.dismiss();
+                            }
+                        });
+                    }
+                }
+            });
+
+            // show it
+            alertDialog.show();
+        }
+    }
+
+    private void reloadBluetoothDeviceList() {
+
+        if (mBluetoothAdapter != null) {
+            mBluetoothList.clear();
+
+            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+            if (pairedDevices!=null) {
+                // If there are paired devices
+                if (pairedDevices.size() > 0) {
+                    // Loop through paired devices
+                    for (BluetoothDevice device : pairedDevices) {
+                        // Add the name and address to an array adapter to show in a ListView
+                        mBluetoothList.add(device.getName() + "\n" + device.getAddress());
+                    }
                 }
             }
-        });
+        }
 
-        // show it
-        alertDialog.show();
     }
 
     private void setupCommand() {
@@ -412,20 +427,16 @@ public class MainActivity extends Activity {
                         switch (msg.arg1) {
                             case BluetoothCommandService.STATE_CONNECTED:
                                 mConnectionIsOpen = true;
-                                //mTitle.setText(R.string.title_connected_to);
-                                //mTitle.append(mConnectedDeviceName);
                                 System.out.println("State Connected");
 
                                 break;
                             case BluetoothCommandService.STATE_CONNECTING:
-                                //mTitle.setText(R.string.title_connecting);
                                 System.out.println("State Connecting");
 
                                 break;
                             case BluetoothCommandService.STATE_LISTEN:
                                 //TODO: will be implemented for client-server comm
                             case BluetoothCommandService.STATE_NONE:
-                                //mTitle.setText(R.string.title_not_connected);
                                 System.out.println("State None");
 
                                 break;
@@ -435,7 +446,6 @@ public class MainActivity extends Activity {
                         // save_off the connected device's name
                         String mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
 
-                        //displayText("Connected to " + mConnectedDeviceName);
                         updateStatus("Connected to " + mConnectedDeviceName);
 
                         break;
@@ -449,7 +459,6 @@ public class MainActivity extends Activity {
                             showBluetoothDeviceSelection();
                         }
 
-                        //displayText(t);
                         updateStatus(t);
 
                         break;
@@ -490,7 +499,6 @@ public class MainActivity extends Activity {
         LoadPreferences();
 
         try {
-            //setContentView(R.layout.activity_main);
             if (mSelectedCamera != null) {
                 mSelectedCamera = CameraHelper.releaseSelectedCamera(mSelectedCamera, this);
             }
@@ -517,12 +525,6 @@ public class MainActivity extends Activity {
             //Log.e(LOG_TAG, "Error in onResume: " + e.getMessage());
         }
 
-//        if (CameraParameters == null)
-//            CameraParameters = mSelectedCamera.getParameters();
-//
-//        _currentZoom = CameraParameters.getZoom();
-//        _maxZoom = CameraParameters.getMaxZoom();
-
     }
 
     @Override
@@ -542,8 +544,6 @@ public class MainActivity extends Activity {
         catch (Exception e) {
             //Log.e(LOG_TAG, "Error in onPause: " + e.getMessage());
         }
-
-
 
     }
 
@@ -736,9 +736,9 @@ public class MainActivity extends Activity {
 //        }
 //    }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return super.onTouchEvent(event);
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        return super.onTouchEvent(event);
 //
 //        try {
 //            if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -758,7 +758,7 @@ public class MainActivity extends Activity {
 //            Log.e(LOG_TAG, "Error in onTouchEvent: " + e.getMessage());
 //        }
 //        return true;
-    }
+//    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -781,18 +781,6 @@ public class MainActivity extends Activity {
             case KeyEvent.KEYCODE_CAMERA:
                 if (action == KeyEvent.ACTION_UP) {
                     try {
-//                        if (CameraParameters == null) {
-//                            CameraParameters = mSelectedCamera.getParameters();
-//                        }
-
-                        // camera orientation is locked to landscape
-                        //int rotation = CameraHelper.getDisplayOrientationForCamera(this, mSelectedCameraId);
-                        //CameraParameters.setRotation(rotation);
-
-                        //mSelectedCamera.setParameters(CameraParameters);
-
-                        //mSelectedCamera.autoFocus(null);
-
                         takePicture();
                     }
                     catch (Exception e) {
@@ -805,7 +793,7 @@ public class MainActivity extends Activity {
                 return true;
             case KeyEvent.KEYCODE_FOCUS:
                 // this event is continuously called
-                // when the shutter button is press half way
+                // when the shutter button is pressed half way
                 if (action == KeyEvent.ACTION_DOWN && event.getFlags() != 40) {
                     //call autofocus
                     if (!mIsFocusing) {
@@ -834,6 +822,10 @@ public class MainActivity extends Activity {
                 }
                 return true;
             case KeyEvent.KEYCODE_ZOOM_IN:
+
+                // I think scan code 545 means full press and 533 means half press
+                // so...every time there is a full press there is also a half press
+
                 if (action == KeyEvent.ACTION_DOWN && event.getScanCode() == 545) {
 
                     // check the amount of time the zoom button has been press
@@ -866,17 +858,11 @@ public class MainActivity extends Activity {
 
                 return true;
 
-//                // I think scan code 545 means full press and 533 means half press
-//                // so...every time there is a full press there is also a half press
-//                if (action == KeyEvent.ACTION_UP && event.getScanCode() != 545) {
-//                    zoomIn();
-//                    return true;
-//                }
-//                else {
-//                    return true;
-//                }
-
             case KeyEvent.KEYCODE_ZOOM_OUT:
+
+                // I think scan code 546 means full press and 534 means half press
+                // so...every time there is a full press there is also a half press
+
                 if (action == KeyEvent.ACTION_DOWN && event.getScanCode() == 546) {
 
                     // check the amount of time the zoom button has been press
@@ -909,33 +895,10 @@ public class MainActivity extends Activity {
 
                 return true;
 
-//                // I think scan code 546 means full press and 534 means half press
-//                // so...every time there is a full press there is also a half press
-//                if (action == KeyEvent.ACTION_UP && event.getScanCode() != 546) {
-//                    zoomOut();
-//                    return true;
-//                }
-//                else {
-//                    return true;
-//                }
-
             default:
                 return super.dispatchKeyEvent(event);
         }
     }
-
-
-
-//    @Override
-//    public void onZoomChange(int zoomValue, boolean stopped, Camera camera) {
-//
-//        if (stopped) {
-//            int currZoom = CameraParameters.getZoom();
-//            displayText("Zoom Level " + mZoomLevels[currZoom]);
-//        }
-//
-//
-//    }
 
     @Override
     public void onBackPressed() {
