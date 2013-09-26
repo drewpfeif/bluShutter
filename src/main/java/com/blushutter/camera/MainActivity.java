@@ -63,12 +63,12 @@ public class MainActivity extends Activity {
     private String mSelectedBluetoothId = null;
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothCommandService mCommandService = null;
-    private Boolean mConnectionIsOpen = false;
     private long mStartPressTime = 0;
     private Boolean mZoomStarted = false;
     private AlertDialog alertDialog = null;
 
     // public variables
+    public Boolean mConnectionIsOpen = false;
     public Camera.Parameters CameraParameters = null;
     public Camera.Size SelectedPictureSize = null;
     public List<Camera.Size> SupportedPictureSizes = null;
@@ -93,6 +93,8 @@ public class MainActivity extends Activity {
             if (savedInstanceState == null) {
                 setContentView(R.layout.activity_main);
 
+                //setupUiVisibility();
+
                 updateStatus("Not Connected");
 
                 boolean hasCamera = checkCameras(this);
@@ -116,6 +118,10 @@ public class MainActivity extends Activity {
             updateStatus("Error");
         }
     }
+
+//    private void setupUiVisibility() {
+//        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+//    }
 
     private void setupButtons() {
 
@@ -383,32 +389,32 @@ public class MainActivity extends Activity {
     private void takePicture() {
         try {
 
-            if (mConnectionIsOpen) {
+//            if (mConnectionIsOpen) {
                 // play sound
                 if (SoundOn)
                     SoundManager.getSingleton().play(SoundManager.SOUND_SHUTTER);
 
                 // take picture
                 mSelectedCamera.takePicture(null, null, new HandlePictureStorage(this, mCommandService));
-            }
-            else {
-                AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(this);
-                myAlertDialog.setTitle(getString(R.string.bluetoothDialogTitle));
-                myAlertDialog.setMessage(getString(R.string.bluetoothDialogMessage));
-                myAlertDialog.setPositiveButton(getString(R.string.buttonYes), new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface arg0, int arg1) {
-                        setupBluetooth();
-                    }});
-
-                myAlertDialog.setNegativeButton(getString(R.string.buttonNo), new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface arg0, int arg1) {
-                        // nothing to do here
-                    }});
-
-                myAlertDialog.show();
-            }
+//            }
+//            else {
+//                AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(this);
+//                myAlertDialog.setTitle(getString(R.string.bluetoothDialogTitle));
+//                myAlertDialog.setMessage(getString(R.string.bluetoothDialogMessage));
+//                myAlertDialog.setPositiveButton(getString(R.string.buttonYes), new DialogInterface.OnClickListener() {
+//
+//                    public void onClick(DialogInterface arg0, int arg1) {
+//                        setupBluetooth();
+//                    }});
+//
+//                myAlertDialog.setNegativeButton(getString(R.string.buttonNo), new DialogInterface.OnClickListener() {
+//
+//                    public void onClick(DialogInterface arg0, int arg1) {
+//                        // nothing to do here
+//                    }});
+//
+//                myAlertDialog.show();
+//            }
         }
         catch (Exception e) {
             //Log.e(LOG_TAG, "Error in takePicture: " + e.getMessage());
@@ -738,24 +744,15 @@ public class MainActivity extends Activity {
 
 //    @Override
 //    public boolean onTouchEvent(MotionEvent event) {
-//        return super.onTouchEvent(event);
+//        super.onTouchEvent(event);
 //
 //        try {
 //            if (event.getAction() == MotionEvent.ACTION_UP) {
-//
-//                float x = event.getX();
-//                float y = event.getY();
-//                float touchMajor = event.getTouchMajor();
-//                float touchMinor = event.getTouchMinor();
-//
-//                Rect touchRect = new Rect((int)(x - touchMajor / 2), (int)(y - touchMinor / 2), (int)(x + touchMajor / 2), (int)(y + touchMinor / 2));
-//
-//                submitFocusAreaRect(touchRect);
-//
+//                setupUiVisibility();
 //            }
 //        }
 //        catch (Exception e) {
-//            Log.e(LOG_TAG, "Error in onTouchEvent: " + e.getMessage());
+//            //Log.e(LOG_TAG, "Error in onTouchEvent: " + e.getMessage());
 //        }
 //        return true;
 //    }

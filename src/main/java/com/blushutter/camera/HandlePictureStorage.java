@@ -50,7 +50,7 @@ public class HandlePictureStorage implements Camera.PictureCallback {
 
         try {
 
-            if (MainActivity.SavePhotos) {
+            if (MainActivity.SavePhotos || !((MainActivity) mFromContext).mConnectionIsOpen) {
                 file = CameraHelper.generateTimeStampPhotoFile();
                 filePath = file.getPath();
             }
@@ -67,10 +67,21 @@ public class HandlePictureStorage implements Camera.PictureCallback {
 
             mHandler.post(r);
 
-            //Toast.makeText(mFromContext, "Picture saved as " + fileName, Toast.LENGTH_LONG).show();
-            Toast.makeText(mFromContext, "Picture sent...", Toast.LENGTH_LONG).show();
+            // if saving photos is turned off and we don't have a bluetooth connection
+            // then the photo has been saved to the camera - let the user know
+            if (!MainActivity.SavePhotos && !((MainActivity) mFromContext).mConnectionIsOpen) {
+                Toast.makeText(mFromContext, "NO BLUETOOTH CONNECTION - Picture saved to camera." , Toast.LENGTH_LONG).show();
+            }
+            else {
+                if (!MainActivity.SavePhotos) {
+                    Toast.makeText(mFromContext, "Picture sent...", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    Toast.makeText(mFromContext, "Picture saved and sent...", Toast.LENGTH_LONG).show();
+                }
+            }
 
-            if (MainActivity.SavePhotos) {
+            if (MainActivity.SavePhotos || !((MainActivity) mFromContext).mConnectionIsOpen) {
             // add photo to media store
                 final Runnable r2 = new Runnable()
                 {
@@ -114,7 +125,7 @@ public class HandlePictureStorage implements Camera.PictureCallback {
             bmp.recycle();
             bmp = null;
 
-            if (MainActivity.SavePhotos) {
+            if (MainActivity.SavePhotos || !((MainActivity) mFromContext).mConnectionIsOpen) {
                 // save_off the file
                 OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file));
                 outputStream.write(saveBytes);
@@ -132,7 +143,7 @@ public class HandlePictureStorage implements Camera.PictureCallback {
         // transfer photo via bluetooth
         try {
 
-            if (saveBytes!=null && mCommandService !=null) {
+            if (saveBytes!=null && mCommandService !=null && ((MainActivity) mFromContext).mConnectionIsOpen) {
 
                 byte[] byteLength = ("SSX" + String.format("%09d", saveBytes.length)).getBytes();
                 byte[] endTransfer = "SSXTHISISTHEENDSSX".getBytes();
