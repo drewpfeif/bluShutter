@@ -16,7 +16,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 
 public class HandlePictureStorage implements Camera.PictureCallback {
-    private static final String LOG_TAG = MainActivity.LOG_TAG + ".HandlePictureStorage";
+    //private static final String LOG_TAG = MainActivity.LOG_TAG + ".HandlePictureStorage";
 
     private static Context mFromContext = null;
     private static BluetoothCommandService mCommandService = null;
@@ -50,7 +50,7 @@ public class HandlePictureStorage implements Camera.PictureCallback {
 
         try {
 
-            if (MainActivity.SavePhotos || !((MainActivity) mFromContext).mConnectionIsOpen) {
+            if (MainActivity.SavePhotos || !((MainActivity) mFromContext).ConnectionIsOpen) {
                 file = CameraHelper.generateTimeStampPhotoFile();
                 filePath = file.getPath();
             }
@@ -69,7 +69,7 @@ public class HandlePictureStorage implements Camera.PictureCallback {
 
             // if saving photos is turned off and we don't have a bluetooth connection
             // then the photo has been saved to the camera - let the user know
-            if (!MainActivity.SavePhotos && !((MainActivity) mFromContext).mConnectionIsOpen) {
+            if (!MainActivity.SavePhotos && !((MainActivity) mFromContext).ConnectionIsOpen) {
                 Toast.makeText(mFromContext, "NO BLUETOOTH CONNECTION - Picture saved to camera." , Toast.LENGTH_LONG).show();
             }
             else {
@@ -81,7 +81,7 @@ public class HandlePictureStorage implements Camera.PictureCallback {
                 }
             }
 
-            if (MainActivity.SavePhotos || !((MainActivity) mFromContext).mConnectionIsOpen) {
+            if (MainActivity.SavePhotos || !((MainActivity) mFromContext).ConnectionIsOpen) {
             // add photo to media store
                 final Runnable r2 = new Runnable()
                 {
@@ -111,13 +111,22 @@ public class HandlePictureStorage implements Camera.PictureCallback {
 
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inMutable = true;
+
             //options.inSampleSize = 4;
 
             if (bmp != null) {
                 bmp.recycle();
             }
             bmp = BitmapFactory.decodeByteArray(b, 0, b.length);
+
+            //rotate photo if needed
+//            // create a matrix object
+//            Matrix matrix = new Matrix();
+//            matrix.postRotate(-90); // anti-clockwise by 90 degrees
+//            bmp = Bitmap.createBitmap(bmp , 0, 0, bmp .getWidth(), bmp .getHeight(), matrix, true);
+
             stream = new ByteArrayOutputStream();
+
             bmp.compress(Bitmap.CompressFormat.JPEG, 50, stream);
             saveBytes = stream.toByteArray();
             stream.flush();
@@ -125,7 +134,7 @@ public class HandlePictureStorage implements Camera.PictureCallback {
             bmp.recycle();
             bmp = null;
 
-            if (MainActivity.SavePhotos || !((MainActivity) mFromContext).mConnectionIsOpen) {
+            if (MainActivity.SavePhotos || !((MainActivity) mFromContext).ConnectionIsOpen) {
                 // save_off the file
                 OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file));
                 outputStream.write(saveBytes);
@@ -143,9 +152,11 @@ public class HandlePictureStorage implements Camera.PictureCallback {
         // transfer photo via bluetooth
         try {
 
-            if (saveBytes!=null && mCommandService !=null && ((MainActivity) mFromContext).mConnectionIsOpen) {
+            if (saveBytes!=null && mCommandService !=null && ((MainActivity) mFromContext).ConnectionIsOpen) {
 
+                // prepend the length of the file
                 byte[] byteLength = ("SSX" + String.format("%09d", saveBytes.length)).getBytes();
+                // append some sort of eof placeholder
                 byte[] endTransfer = "SSXTHISISTHEENDSSX".getBytes();
                 byte[] destination = new byte[byteLength.length + saveBytes.length + endTransfer.length];
 
@@ -157,15 +168,12 @@ public class HandlePictureStorage implements Camera.PictureCallback {
                 endTransfer = null;
                 b = null;
 
-                //mCommandService.write(saveBytes.length);
                 mCommandService.write(destination);
 
                 // play sound
                 if (MainActivity.SoundOn)
                     SoundManager.getSingleton().play(SoundManager.SOUND_PROCESS_DONE);
 
-                //destination = null;
-                //bytes = null;
             }
         }
         catch (Exception e) {

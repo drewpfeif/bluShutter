@@ -8,14 +8,18 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.hardware.Camera;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -65,16 +69,19 @@ public class MainActivity extends Activity {
     private BluetoothCommandService mCommandService = null;
     private long mStartPressTime = 0;
     private Boolean mZoomStarted = false;
-    private AlertDialog alertDialog = null;
+    private AlertDialog mAlertDialog = null;
+    private Boolean mRestartingBluetooth = false;
+    private int mFailedConnectionCount = 0;
 
     // public variables
-    public Boolean mConnectionIsOpen = false;
+    public Boolean ConnectionIsOpen = false;
     public Camera.Parameters CameraParameters = null;
     public Camera.Size SelectedPictureSize = null;
     public List<Camera.Size> SupportedPictureSizes = null;
     public int SelectedPictureSizeIndex = NOT_SET;
     public static Boolean SavePhotos = false;
     public static Boolean SoundOn = true;
+    public int ScreenRotation = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -259,9 +266,88 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void showLostConnectionMessage() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setTitle("Connection Lost");
+        builder.setMessage("Bluetooth Connection Was Lost.  Restart the Listener and click OK.");
+        builder.setNeutralButton(R.string.buttonOk, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        //Do nothing here. We override the onclick
+                    }
+
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog,int which)
+                    {
+                        // just close the dialog
+                    }
+
+                });
+
+        // create alert dialog
+        if (mAlertDialog == null || !mAlertDialog.isShowing()) {
+            mAlertDialog = builder.create();
+
+            mAlertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+
+                @Override
+                public void onShow(DialogInterface dialog) {
+
+                    Button b = mAlertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+                    if (b!=null) {
+                        b.setOnClickListener(new View.OnClickListener() {
+
+                            @Override
+                            public void onClick(View view) {
+
+                                if (mSelectedBluetoothId == null)
+                                    return;
+
+                                //setupCommand();
+                                RestartCommandService();
+
+                                updateStatus("Connecting to " + mSelectedBluetoothId + "...");
+
+                                //Dismiss once everything is OK.
+                                mAlertDialog.dismiss();
+                            }
+                        });
+                    }
+                }
+            });
+
+            // show it
+            mAlertDialog.show();
+        }
+    }
+
     private void showBluetoothDeviceSelection() {
 
         reloadBluetoothDeviceList();
+
+        // if there is only one device to select then
+        // automatically try to connect to it
+        if (mBluetoothList.size() == 1) {
+            if (mFailedConnectionCount > 2) {
+
+                mFailedConnectionCount = 0;
+                return;
+
+            }
+            else {
+
+                updateStatus("Connecting to " + mSelectedBluetoothId + "...");
+                mSelectedBluetoothId = mBluetoothList.get(0)
+                        .substring(mBluetoothList.get(0).length() - 17);
+                RestartCommandService();
+                return;
+
+            }
+        }
 
         CharSequence[] items = mBluetoothList.toArray(new CharSequence[mBluetoothList.size()]);
 
@@ -293,18 +379,27 @@ public class MainActivity extends Activity {
                         showBluetoothDeviceSelection();
                     }
 
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog,int which)
+                    {
+                        // just close the dialog
+                    }
+
                 });
 
         // create alert dialog
-        if (alertDialog == null || !alertDialog.isShowing()) {
-            alertDialog = builder.create();
+        if (mAlertDialog == null || !mAlertDialog.isShowing()) {
+            mAlertDialog = builder.create();
 
-            alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            mAlertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
 
                 @Override
                 public void onShow(DialogInterface dialog) {
 
-                    Button b = alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+                    Button b = mAlertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
                     if (b!=null) {
                         b.setOnClickListener(new View.OnClickListener() {
 
@@ -314,12 +409,14 @@ public class MainActivity extends Activity {
                                 if (mSelectedBluetoothId == null)
                                     return;
 
-                                setupCommand();
+                                RestartCommandService();
+
+                                //setupCommand();
 
                                 updateStatus("Connecting to " + mSelectedBluetoothId + "...");
 
                                 //Dismiss once everything is OK.
-                                alertDialog.dismiss();
+                                mAlertDialog.dismiss();
                             }
                         });
                     }
@@ -327,7 +424,7 @@ public class MainActivity extends Activity {
             });
 
             // show it
-            alertDialog.show();
+            mAlertDialog.show();
         }
     }
 
@@ -352,6 +449,7 @@ public class MainActivity extends Activity {
     }
 
     private void setupCommand() {
+
         try {
             // Initialize the BluetoothChatService to perform bluetooth connections
             mCommandService = new BluetoothCommandService(this, mHandler);
@@ -361,9 +459,11 @@ public class MainActivity extends Activity {
         }
 
         connectToDevice();
+
     }
 
     private void connectToDevice() {
+
         try {
             // Get the BLuetoothDevice object
             BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mSelectedBluetoothId);
@@ -373,6 +473,7 @@ public class MainActivity extends Activity {
         catch (Exception e) {
             //Log.e(LOG_TAG, "Error in connectToDevice: " + e.getMessage());
         }
+
     }
 
     // not using this method at all
@@ -393,6 +494,10 @@ public class MainActivity extends Activity {
                 // play sound
                 if (SoundOn)
                     SoundManager.getSingleton().play(SoundManager.SOUND_SHUTTER);
+
+                // get orientation (portrait or landscape
+                Display display = ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+                ScreenRotation = display.getRotation();
 
                 // take picture
                 mSelectedCamera.takePicture(null, null, new HandlePictureStorage(this, mCommandService));
@@ -432,7 +537,8 @@ public class MainActivity extends Activity {
                     case MESSAGE_STATE_CHANGE:
                         switch (msg.arg1) {
                             case BluetoothCommandService.STATE_CONNECTED:
-                                mConnectionIsOpen = true;
+                                ConnectionIsOpen = true;
+                                mFailedConnectionCount = 0;
                                 System.out.println("State Connected");
 
                                 break;
@@ -458,14 +564,20 @@ public class MainActivity extends Activity {
                     case MESSAGE_TOAST:
 
                         String t = msg.getData().getString(TOAST);
+                        updateStatus(t);
 
                         if (t!=null && t.equals("Unable to connect device")) {
-                            mConnectionIsOpen = false;
+                            mFailedConnectionCount++;
+                            ConnectionIsOpen = false;
                             // show bluetooth device selector
                             showBluetoothDeviceSelection();
                         }
-
-                        updateStatus(t);
+                        else if (t!=null && t.equals("Device connection was lost")) {
+                            ConnectionIsOpen = false;
+                            // let the user know that we lost connection
+                            if (!mRestartingBluetooth)
+                                showLostConnectionMessage();
+                        }
 
                         break;
                 }
@@ -476,14 +588,41 @@ public class MainActivity extends Activity {
         }
     };
 
+    private void StopCommandService() {
+
+        if (mCommandService != null)
+            mCommandService.stop();
+
+    }
+
+    private void StartCommandService() {
+
+        if (mCommandService != null) {
+            if (mCommandService.getState() == BluetoothCommandService.STATE_NONE) {
+                mCommandService.start();
+
+                connectToDevice();
+
+            }
+        }
+
+    }
+
+    private void RestartCommandService() {
+
+        mRestartingBluetooth = true;
+        StopCommandService();
+        StartCommandService();
+        mRestartingBluetooth = false;
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
 
         try {
 
-            if (mCommandService != null)
-                mCommandService.stop();
+            StopCommandService();
 
         }
         catch (Exception e) {
@@ -505,6 +644,7 @@ public class MainActivity extends Activity {
         LoadPreferences();
 
         try {
+
             if (mSelectedCamera != null) {
                 mSelectedCamera = CameraHelper.releaseSelectedCamera(mSelectedCamera, this);
             }
@@ -518,14 +658,8 @@ public class MainActivity extends Activity {
 
             displayZoom();
 
-            if (mCommandService != null) {
-                if (mCommandService.getState() == BluetoothCommandService.STATE_NONE) {
-                    mCommandService.start();
+            StartCommandService();
 
-                    connectToDevice();
-
-                }
-            }
         }
         catch (Exception e) {
             //Log.e(LOG_TAG, "Error in onResume: " + e.getMessage());
@@ -543,8 +677,7 @@ public class MainActivity extends Activity {
 
             mSelectedCamera = CameraHelper.releaseSelectedCamera(mSelectedCamera, this);
 
-            if (mCommandService != null)
-                mCommandService.stop();
+            StopCommandService();
 
         }
         catch (Exception e) {
@@ -1090,5 +1223,19 @@ public class MainActivity extends Activity {
             textView.setText(status);
         }
 
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        // Checks the orientation of the screen for landscape and portrait and set portrait mode always
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            //setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            //setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
     }
 }

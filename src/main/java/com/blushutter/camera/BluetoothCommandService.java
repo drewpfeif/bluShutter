@@ -206,8 +206,15 @@ public class BluetoothCommandService {
      * Indicate that the connection was lost and notify the UI Activity.
      */
     private void connectionLost() {
-        mConnectionLostCount++;
-        if (mConnectionLostCount < 3) {
+
+        Message msg = mHandler.obtainMessage(MainActivity.MESSAGE_TOAST);
+        Bundle bundle = new Bundle();
+        bundle.putString(MainActivity.TOAST, "Device connection was lost");
+        msg.setData(bundle);
+        mHandler.sendMessage(msg);
+
+//        mConnectionLostCount++;
+//        if (mConnectionLostCount < 3) {
 //        	// Send a reconnect message back to the Activity
 //	        Message msg = mHandler.obtainMessage(RemoteBluetooth.MESSAGE_TOAST);
 //	        Bundle bundle = new Bundle();
@@ -215,16 +222,16 @@ public class BluetoothCommandService {
 //	        msg.setData(bundle);
 //	        mHandler.sendMessage(msg);
 //
-            connect(mSavedDevice);
-        } else {
-            setState(STATE_LISTEN);
-            // Send a failure message back to the Activity
-            Message msg = mHandler.obtainMessage(MainActivity.MESSAGE_TOAST);
-            Bundle bundle = new Bundle();
-            bundle.putString(MainActivity.TOAST, "Device connection was lost");
-            msg.setData(bundle);
-            mHandler.sendMessage(msg);
-        }
+//            connect(mSavedDevice);
+//        } else {
+//            setState(STATE_LISTEN);
+//            // Send a failure message back to the Activity
+//            Message msg = mHandler.obtainMessage(MainActivity.MESSAGE_TOAST);
+//            Bundle bundle = new Bundle();
+//            bundle.putString(MainActivity.TOAST, "Device connection was lost");
+//            msg.setData(bundle);
+//            mHandler.sendMessage(msg);
+//        }
     }
 
     /**
@@ -332,23 +339,23 @@ public class BluetoothCommandService {
 
         public void run() {
             //Log.i(LOG_TAG, "BEGIN mConnectedThread");
-//            byte[] buffer = new byte[1024];
-//
-//            // Keep listening to the InputStream while connected
-//            while (true) {
-//                try {
-//                    // Read from the InputStream
-//                    int bytes = mmInStream.read(buffer);
-//
-//                    // Send the obtained bytes to the UI Activity
-////                    mHandler.obtainMessage(MainActivity.MESSAGE_READ, bytes, -1, buffer)
-////                            .sendToTarget();
-//                } catch (IOException e) {
-//                    Log.e(LOG_TAG, "disconnected", e);
-//                    connectionLost();
-//                    break;
-//                }
-//            }
+            byte[] buffer = new byte[1024];
+
+            // Keep listening to the InputStream while connected
+            while (true) {
+                try {
+                    // Read from the InputStream
+                    int bytes = mmInStream.read(buffer);
+
+                    // Send the obtained bytes to the UI Activity
+//                    mHandler.obtainMessage(MainActivity.MESSAGE_READ, bytes, -1, buffer)
+//                            .sendToTarget();
+                } catch (IOException e) {
+                    //Log.e(LOG_TAG, "disconnected", e);
+                    connectionLost();
+                    break;
+                }
+            }
         }
 
         /**
