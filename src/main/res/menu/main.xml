@@ -1,10 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@id/action_sound"
-        android:title="@string/action_sound"
-        android:orderInCategory="100"
-        android:showAsAction="never" />
-    <item android:id="@+id/action_resolution"
-        android:title="@string/action_resolution"
+   <item android:id="@+id/action_refreshcamera"
+        android:title="@string/refreshcamera"
         android:orderInCategory="100"
         android:showAsAction="never" />
 </menu>

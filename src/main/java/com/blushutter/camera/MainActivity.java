@@ -18,6 +18,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.Display;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -630,12 +632,12 @@ public class MainActivity extends Activity {
         }
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.main, menu);
-//        return true;
-//    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
 
     @Override
     protected void onResume() {
@@ -686,39 +688,35 @@ public class MainActivity extends Activity {
 
     }
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        boolean handled = true;
-//
-//        int id = item.getItemId();
-//        switch (id) {
-//            case R.id.action_resolution:
-//                resolutionMenuClicked();
-//                break;
-//            case R.id.action_sound:
-//                soundMenuClicked();
-//                break;
-//            default:
-//                handled = super.onOptionsItemSelected(item);
-//        }
-//
-//        return handled;
-//    }
-//
-//    private void soundMenuClicked() {
-//        SoundManager.getSingleton().preload(this);
-//        SoundManager.getSingleton().SoundOn = !SoundManager.getSingleton().SoundOn;
-//
-//        mImageButton = (ImageButton) findViewById(R.id.btnSound);
-//
-//        if (SoundManager.getSingleton().SoundOn) {
-//            mImageButton.setImageResource(R.drawable.sound_on);
-//        }
-//        else {
-//            mImageButton.setImageResource(R.drawable.sound_off);
-//        }
-//
-//    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean handled = true;
+
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.action_refreshcamera:
+                refreshCameraClicked();
+                break;
+            default:
+                handled = super.onOptionsItemSelected(item);
+        }
+
+        return handled;
+    }
+
+    private void refreshCameraClicked() {
+
+        setupCamera();
+
+        try {
+        // restart the camera preview
+        mSelectedCamera.startPreview();
+        }
+        catch (Exception e) {
+            updateStatus("CAMERA ERROR!!!");
+        }
+
+    }
 
     private void btnResolutionClicked() {
 

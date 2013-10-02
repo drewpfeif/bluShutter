@@ -22,5 +22,6 @@
     <string name="btnResolutionDesc">Select Resolution</string>
     <string name="btnSavePhotoDesc">Save Photo To Camera</string>
     <string name="btnSoundDesc">Turn Sound On/Off</string>
+    <string name="refreshcamera">Refresh Camera</string>
 
 </resources>
