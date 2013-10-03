@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.hardware.Camera;
@@ -16,14 +15,16 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.view.Display;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Surface;
 import android.view.View;
-import android.view.WindowManager;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -497,9 +498,9 @@ public class MainActivity extends Activity {
                 if (SoundOn)
                     SoundManager.getSingleton().play(SoundManager.SOUND_SHUTTER);
 
-                // get orientation (portrait or landscape
-                Display display = ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
-                ScreenRotation = display.getRotation();
+                // set rotation (portrait or landscape)
+                //CameraParameters.setRotation(ScreenRotation);
+                //mSelectedCamera.setParameters(CameraParameters);
 
                 // take picture
                 mSelectedCamera.takePicture(null, null, new HandlePictureStorage(this, mCommandService));
@@ -1227,13 +1228,89 @@ public class MainActivity extends Activity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        // Checks the orientation of the screen for landscape and portrait and set portrait mode always
+        android.hardware.Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
+        android.hardware.Camera.getCameraInfo(mSelectedCameraId, info);
+        int rotation = this.getWindowManager().getDefaultDisplay().getRotation();
+
+        int degrees = 0;
+        switch (rotation) {
+            case Surface.ROTATION_0: degrees = 0; break;
+            case Surface.ROTATION_90: degrees = 90; break;
+            case Surface.ROTATION_180: degrees = 180; break;
+            case Surface.ROTATION_270: degrees = 270; break;
+        }
+
+        mSelectedCamera.setDisplayOrientation((info.orientation - degrees + 360) % 360);
+//        CameraParameters.setRotation((info.orientation - degrees + 360) % 360);
+//        CameraParameters.set("orientation", "portrait");
+//        mSelectedCamera.setParameters(CameraParameters);
+        ScreenRotation = (info.orientation - degrees + 360) % 360;
+
+        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) (findViewById(R.id.sidebar)).getLayoutParams();
+
+        // Checks the orientation of the screen for landscape and portrait and set landscape mode always
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            (findViewById(R.id.cameraPreview)).setPadding(0, 0, 0, 0);
+            ((LinearLayout) findViewById(R.id.blushutter_root)).setOrientation(LinearLayout.HORIZONTAL);
+            ((LinearLayout) findViewById(R.id.sidebar)).setOrientation(LinearLayout.VERTICAL);
+            ((LinearLayout) findViewById(R.id.sidebar)).setGravity(Gravity.LEFT);
+            setButtonMargins_Horizontal();
+            layoutParams.width = 116;
+            layoutParams.height = -1;
+            (findViewById(R.id.sidebar)).setLayoutParams(layoutParams);
+            //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             //setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-            setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            (findViewById(R.id.cameraPreview)).setPadding(40, 0, 40, 0);
+            ((LinearLayout) findViewById(R.id.blushutter_root)).setOrientation(LinearLayout.VERTICAL);
+            ((LinearLayout) findViewById(R.id.sidebar)).setOrientation(LinearLayout.HORIZONTAL);
+            ((LinearLayout) findViewById(R.id.sidebar)).setGravity(Gravity.TOP);
+            setButtonMargins_Vertical();
+            layoutParams.width = -1;
+            layoutParams.height = 116;
+            (findViewById(R.id.sidebar)).setLayoutParams(layoutParams);
+            //((LinearLayout) findViewById(R.id.sidebar)).setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,58));
+            //setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             //setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
+
+    }
+
+    private void setButtonMargins_Vertical(){
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnBluetoothDevices)).getLayoutParams()).topMargin = 10;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnBluetoothDevices)).getLayoutParams()).bottomMargin = 0;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnBluetoothDevices)).getLayoutParams()).leftMargin = 40;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnBluetoothDevices)).getLayoutParams()).rightMargin = 40;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSound)).getLayoutParams()).topMargin = 10;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSound)).getLayoutParams()).bottomMargin = 0;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSound)).getLayoutParams()).leftMargin = 40;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSound)).getLayoutParams()).rightMargin = 40;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnResolution)).getLayoutParams()).topMargin = 10;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnResolution)).getLayoutParams()).bottomMargin = 0;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnResolution)).getLayoutParams()).leftMargin = 40;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnResolution)).getLayoutParams()).rightMargin = 40;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSavePhoto)).getLayoutParams()).topMargin = 10;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSavePhoto)).getLayoutParams()).bottomMargin = 0;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSavePhoto)).getLayoutParams()).leftMargin = 40;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSavePhoto)).getLayoutParams()).rightMargin = 40;
+    }
+
+    private void setButtonMargins_Horizontal(){
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnBluetoothDevices)).getLayoutParams()).topMargin = 40;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnBluetoothDevices)).getLayoutParams()).bottomMargin = 40;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnBluetoothDevices)).getLayoutParams()).leftMargin = 10;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnBluetoothDevices)).getLayoutParams()).rightMargin = 0;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSound)).getLayoutParams()).topMargin = 40;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSound)).getLayoutParams()).bottomMargin = 40;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSound)).getLayoutParams()).leftMargin = 10;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSound)).getLayoutParams()).rightMargin = 0;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnResolution)).getLayoutParams()).topMargin = 40;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnResolution)).getLayoutParams()).bottomMargin = 40;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnResolution)).getLayoutParams()).leftMargin = 10;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnResolution)).getLayoutParams()).rightMargin = 0;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSavePhoto)).getLayoutParams()).topMargin = 40;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSavePhoto)).getLayoutParams()).bottomMargin = 40;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSavePhoto)).getLayoutParams()).leftMargin = 10;
+        ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSavePhoto)).getLayoutParams()).rightMargin = 0;
     }
 }

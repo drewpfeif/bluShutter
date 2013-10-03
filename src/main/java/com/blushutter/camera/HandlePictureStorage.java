@@ -3,6 +3,7 @@ package com.blushutter.camera;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -119,11 +120,12 @@ public class HandlePictureStorage implements Camera.PictureCallback {
             }
             bmp = BitmapFactory.decodeByteArray(b, 0, b.length);
 
-            //rotate photo if needed
-//            // create a matrix object
-//            Matrix matrix = new Matrix();
-//            matrix.postRotate(-90); // anti-clockwise by 90 degrees
-//            bmp = Bitmap.createBitmap(bmp , 0, 0, bmp .getWidth(), bmp .getHeight(), matrix, true);
+            // rotate photo if needed
+            // create a matrix object
+            Matrix matrix = new Matrix();
+            matrix.postRotate(((MainActivity) mFromContext).ScreenRotation);
+            bmp = Bitmap.createBitmap(bmp , 0, 0, bmp .getWidth(), bmp .getHeight(), matrix, true);
+
 
             stream = new ByteArrayOutputStream();
 
