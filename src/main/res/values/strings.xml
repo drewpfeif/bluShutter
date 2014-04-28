@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">bluShutter</string>
+    <string name="app_name">AIM Camera</string>
     <string name="action_resolution">Resolution</string>
-    <string name="bluetoothDialog">Select Bluetooth Device</string>
+    <string name="bluetoothDialog">Select Bluetooth Device.\n&#40;Don\'t forget to start the Bluetooth listener in AIM&#41;</string>
     <string name="action_sound">Sound On/Off</string>
     <string name="resolutionDialogTitle">Select Resolution</string>
     <string name="noCameraDialogTitle">No Camera</string>

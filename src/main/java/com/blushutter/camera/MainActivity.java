@@ -272,7 +272,7 @@ public class MainActivity extends Activity {
     private void showLostConnectionMessage() {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle("Connection Lost");
-        builder.setMessage("Bluetooth Connection Was Lost.  Restart the Listener and click OK.");
+        builder.setMessage("Bluetooth Connection Was Lost.  Restart the Listener in AIM and click OK.");
         builder.setNeutralButton(R.string.buttonOk, new DialogInterface.OnClickListener() {
 
                     @Override
