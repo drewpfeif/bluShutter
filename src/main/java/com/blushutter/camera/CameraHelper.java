@@ -220,6 +220,7 @@ public class CameraHelper {
                 cameraParameters.setPictureSize(size.width,size.height);
                 cameraParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
                 cameraParameters.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
+                cameraParameters.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
 
                 //Log.v(LOG_TAG, String.valueOf(cameraParameters.isSmoothZoomSupported()));
 
