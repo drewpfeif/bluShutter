@@ -16,7 +16,8 @@ import java.util.Date;
 
 public class CameraHelper {
 
-    private static final String LOG_TAG = AppConstants.LOG_TAG + ".CameraHelper";
+    // for debugging...
+    //private static final String LOG_TAG = AppConstants.LOG_TAG + ".CameraHelper";
 
     public static int getDisplayOrientationForCamera(Context context, int cameraId) {
         final int DEGREES_IN_CIRCLE = 360;
@@ -75,6 +76,7 @@ public class CameraHelper {
         return degrees;
     }
 
+    // Create a file for storing the photo and put a time stamp in the file name.
     public static File generateTimeStampPhotoFile() {
 
         // request the path to the bluShutter folder in the photo folder
@@ -128,6 +130,7 @@ public class CameraHelper {
         return photoFileUri;
     }
 
+    // Create and return the "bluShutter" directory for storing photos locally.
     public static File getPhotoDirectory() {
 
         File outputDir = null;
@@ -158,6 +161,7 @@ public class CameraHelper {
         return  outputDir;
     }
 
+    // Get the camera based on the facing parameter passed in (front or back)
     public static int getFacingCameraId(int facing) {
         int cameraId = AppConstants.NOT_SET;
 
@@ -180,6 +184,7 @@ public class CameraHelper {
         return  cameraId;
     }
 
+    // Get access to the device's camera and set its default configuration for this app.
     public static Camera openSelectedCamera(int cameraId, Activity activity) {
 
         Camera camera = null;
@@ -187,6 +192,8 @@ public class CameraHelper {
             try {
                 camera = Camera.open(cameraId);
 
+                // Display what the camera sees in our cameraPreview.
+                // (which is displayed in our activity_main Layout.)
                 CameraPreview cameraPreview = (CameraPreview) activity.findViewById(R.id.cameraPreview);
                 ViewGroup.LayoutParams params = cameraPreview.getLayoutParams();
                 DisplayMetrics dm = new DisplayMetrics();
@@ -195,29 +202,43 @@ public class CameraHelper {
                 params.height = dm.heightPixels;
                 cameraPreview.setLayoutParams(params);
 
+                // Connect the camera to our layout via the cameraPreview object.
                 cameraPreview.connectCamera(camera);
 
+                // Get the settings from the camera so that we can change them.
                 Camera.Parameters cameraParameters = camera.getParameters();
 
+                // Get the current resolution of the camera.
                 Camera.Size size;
 
+                // Get a list of supported camera resolutions.
                 ((MainActivity) activity).SupportedPictureSizes = cameraParameters.getSupportedPictureSizes();
 
+                // If a resolution has already been selected in our MainActivity then we should use it.
                 if (((MainActivity) activity).SelectedPictureSize != null) {
                     size = ((MainActivity) activity).SelectedPictureSize;
                 }
                 else {
+
+                    // Otherwise use this default resolution.
+
                     size = cameraParameters.getPictureSize();
-                    // this picture size seems to be too big
-                    // getting OOM error when trying to decode they bytes
+
                     size.width = 2592;
                     size.height = 1944;
 //                    size.width = 1024;
 //                    size.height = 768;
+
+                    //
                     ((MainActivity) activity).SelectedPictureSize = size;
                 }
 
                 int i = 0;
+
+                // for each size in our list of supported pictures sized we want to
+                // see if the size that was set above is in our list.  If it is then set
+                // the MainActivity's SelectedPictureSizeIndex so that when the list of
+                // resolutions is displayed we can automatically select it.
                 for (Camera.Size pictureSize:((MainActivity) activity).SupportedPictureSizes) {
                     if (size.width == pictureSize.width && size.height == pictureSize.height) {
                         ((MainActivity) activity).SelectedPictureSizeIndex = i;
@@ -227,12 +248,18 @@ public class CameraHelper {
                 }
 
                 cameraParameters.setPictureSize(size.width,size.height);
+
+                // set focus to auto
                 cameraParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                // set white balance to auto
                 cameraParameters.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
+                // set flash to auto
                 cameraParameters.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
 
                 //Log.v(LOG_TAG, String.valueOf(cameraParameters.isSmoothZoomSupported()));
 
+                // Save the camera settings to a variable in the MainActivity.
+                // We will apply these settings in the MainActivity.
                 ((MainActivity) activity).CameraParameters = cameraParameters;
 
 //                ((MainActivity) activity)._currentZoom = currentZoom;
@@ -249,6 +276,7 @@ public class CameraHelper {
         return  camera;
     }
 
+    // Release the camera so some other application can use it if needed.
     public static Camera releaseSelectedCamera(Camera camera, Activity activity) {
         if (camera != null) {
 

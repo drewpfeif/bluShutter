@@ -73,7 +73,7 @@ public class MainActivity extends Activity {
 
             LoadPreferences();
 
-            // create class-wide toast instance
+            // create an instance of the toast class.
             mToastText = Toast.makeText(this, "", Toast.LENGTH_SHORT);
 
 
@@ -216,6 +216,7 @@ public class MainActivity extends Activity {
             }
             else {
 
+                // If bluetooth is not on then ask the user to turn it on.
                 if (!mBluetoothAdapter.isEnabled()) {
                     Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                     startActivityForResult(enableBtIntent, AppConstants.REQUEST_ENABLE_BT);
@@ -243,15 +244,17 @@ public class MainActivity extends Activity {
         }
     }
 
+    // Create an Alert Dialog to notify the user that the bluetooth connection was lost.
     private void showLostConnectionMessage() {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle("Connection Lost");
         builder.setMessage("Bluetooth Connection Was Lost.  Restart the Listener in AIM and click OK.");
+        // Set the action buttons
         builder.setNeutralButton(R.string.buttonOk, new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        //Do nothing here. We override the onclick
+                        //Do nothing here. We override the onclick when the dialog is shown.
                     }
 
                 })
@@ -260,7 +263,7 @@ public class MainActivity extends Activity {
                     @Override
                     public void onClick(DialogInterface dialog,int which)
                     {
-                        // just close the dialog
+                        // Nothing to code here.  Allow the dialog to close.
                     }
 
                 });
@@ -269,6 +272,7 @@ public class MainActivity extends Activity {
         if (mAlertDialog == null || !mAlertDialog.isShowing()) {
             mAlertDialog = builder.create();
 
+            // When the alert is displayed we want to override the Neutral Button Click Event.
             mAlertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
 
                 @Override
@@ -284,7 +288,7 @@ public class MainActivity extends Activity {
                                 if (mSelectedBluetoothId == null)
                                     return;
 
-                                //setupCommand();
+                                // attempt to restart the bluetooth connection
                                 RestartCommandService();
 
                                 updateStatus("Connecting to " + mSelectedBluetoothId + "...");
@@ -309,6 +313,7 @@ public class MainActivity extends Activity {
         // if there is only one device to select then
         // automatically try to connect to it
         if (mBluetoothList.size() == 1) {
+            // give up after 3 attempts
             if (mFailedConnectionCount > 2) {
 
                 mFailedConnectionCount = 0;
@@ -326,10 +331,13 @@ public class MainActivity extends Activity {
             }
         }
 
+        // Get an array of available bluetooth devices to we can attempt to connect to.
         CharSequence[] items = mBluetoothList.toArray(new CharSequence[mBluetoothList.size()]);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle(mContext.getString(R.string.bluetoothDialog));
+        // Allow only one item to be selected.
+        // Save the selected item to the mSelectedBluetoothId variable.
         builder.setSingleChoiceItems(items, -1,
                 new DialogInterface.OnClickListener() {
                     // indexSelected contains the index of item (of which checkbox checked)
@@ -344,7 +352,7 @@ public class MainActivity extends Activity {
 
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        //Do nothing here. We override the onclick
+                        //Do nothing here. We override the onclick when the alert is displayed.
                     }
 
                 })
@@ -362,7 +370,7 @@ public class MainActivity extends Activity {
                     @Override
                     public void onClick(DialogInterface dialog,int which)
                     {
-                        // just close the dialog
+                        // Nothing to code here.  Allow the dialog to close.
                     }
 
                 });
@@ -371,6 +379,7 @@ public class MainActivity extends Activity {
         if (mAlertDialog == null || !mAlertDialog.isShowing()) {
             mAlertDialog = builder.create();
 
+            // When the alert is displayed we want to override the Neutral Button Click Event.
             mAlertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
 
                 @Override
@@ -408,15 +417,18 @@ public class MainActivity extends Activity {
     private void reloadBluetoothDeviceList() {
 
         if (mBluetoothAdapter != null) {
+
+            // clear the list of bluetooth devices
             mBluetoothList.clear();
 
+            // Get a list of bluetooth devices that have been paired with this device.
             Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
             if (pairedDevices!=null) {
                 // If there are paired devices
                 if (pairedDevices.size() > 0) {
-                    // Loop through paired devices
+                    // Loop through paired devices (for each bluetooth device in pairedDevices)
                     for (BluetoothDevice device : pairedDevices) {
-                        // Add the name and address to an array adapter to show in a ListView
+                        // Add the name and mac address to an array adapter to show in a ListView
                         mBluetoothList.add(device.getName() + "\n" + device.getAddress());
                     }
                 }
@@ -442,7 +454,7 @@ public class MainActivity extends Activity {
     private void connectToDevice() {
 
         try {
-            // Get the BLuetoothDevice object
+            // Get the BluetoothDevice object
             BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mSelectedBluetoothId);
             // Attempt to connect to the device
             mCommandService.connect(device);
@@ -467,8 +479,6 @@ public class MainActivity extends Activity {
     private void takePicture() {
         try {
 
-//            if (mConnectionIsOpen) {
-                // play sound
                 if (SoundOn)
                     SoundManager.getSingleton().play(SoundManager.SOUND_SHUTTER);
 
@@ -478,35 +488,19 @@ public class MainActivity extends Activity {
 
                 // take picture
                 mSelectedCamera.takePicture(null, null, new HandlePictureStorage(this, mCommandService));
-//            }
-//            else {
-//                AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(this);
-//                myAlertDialog.setTitle(getString(R.string.bluetoothDialogTitle));
-//                myAlertDialog.setMessage(getString(R.string.bluetoothDialogMessage));
-//                myAlertDialog.setPositiveButton(getString(R.string.buttonYes), new DialogInterface.OnClickListener() {
-//
-//                    public void onClick(DialogInterface arg0, int arg1) {
-//                        setupBluetooth();
-//                    }});
-//
-//                myAlertDialog.setNegativeButton(getString(R.string.buttonNo), new DialogInterface.OnClickListener() {
-//
-//                    public void onClick(DialogInterface arg0, int arg1) {
-//                        // nothing to do here
-//                    }});
-//
-//                myAlertDialog.show();
-//            }
+
         }
         catch (Exception e) {
             //Log.e(LOG_TAG, "Error in takePicture: " + e.getMessage());
         }
     }
 
+
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
 
+            // for debugging...
             System.out.println("In handler");
 
             try {
@@ -516,23 +510,26 @@ public class MainActivity extends Activity {
                             case BluetoothCommandService.STATE_CONNECTED:
                                 ConnectionIsOpen = true;
                                 mFailedConnectionCount = 0;
+                                // for debugging...
                                 System.out.println("State Connected");
 
                                 break;
                             case BluetoothCommandService.STATE_CONNECTING:
+                                // for debugging...
                                 System.out.println("State Connecting");
 
                                 break;
                             case BluetoothCommandService.STATE_LISTEN:
                                 //TODO: will be implemented for client-server comm
                             case BluetoothCommandService.STATE_NONE:
+                                // for debugging...
                                 System.out.println("State None");
 
                                 break;
                         }
                         break;
                     case AppConstants.MESSAGE_DEVICE_NAME:
-                        // save_off the connected device's name
+                        // display the connected device's name
                         String mConnectedDeviceName = msg.getData().getString(AppConstants.DEVICE_NAME);
 
                         updateStatus("Connected to " + mConnectedDeviceName);
@@ -565,6 +562,7 @@ public class MainActivity extends Activity {
         }
     };
 
+    // Stop the Bluetooth Service
     private void StopCommandService() {
 
         if (mCommandService != null)
@@ -572,6 +570,7 @@ public class MainActivity extends Activity {
 
     }
 
+    // Start the Bluetooth Service and try to connect to a device.
     private void StartCommandService() {
 
         if (mCommandService != null) {
@@ -585,6 +584,7 @@ public class MainActivity extends Activity {
 
     }
 
+    // Restart the Bluetooth Service and try to connect to a device.
     private void RestartCommandService() {
 
         mRestartingBluetooth = true;
@@ -593,12 +593,14 @@ public class MainActivity extends Activity {
         mRestartingBluetooth = false;
     }
 
+
     @Override
     public void onDestroy() {
         super.onDestroy();
 
         try {
 
+            // Stop the Bluetooth Service when the app is destroyed.
             StopCommandService();
 
         }
@@ -635,6 +637,7 @@ public class MainActivity extends Activity {
 
             displayZoom();
 
+            // Start the Bluetooth Service and try to connect to a device.
             StartCommandService();
 
         }
@@ -663,6 +666,7 @@ public class MainActivity extends Activity {
 
     }
 
+    // This function gets called when a Menu Item is selected.
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean handled = true;
@@ -679,6 +683,7 @@ public class MainActivity extends Activity {
         return handled;
     }
 
+    // Re-connect to the camera.
     private void refreshCameraClicked() {
 
         setupCamera();
@@ -693,12 +698,14 @@ public class MainActivity extends Activity {
 
     }
 
+    // Choose the camera resolution.
     private void btnResolutionClicked() {
 
         if (SupportedPictureSizes == null)
             return;
 
         // create an array of strings of the form 320x240
+
         final String[] pictureSizesAsString = new String[SupportedPictureSizes.size()];
         int index = 0;
 
@@ -714,7 +721,7 @@ public class MainActivity extends Activity {
                         // indexSelected contains the index of item (of which checkbox checked)
                         @Override
                         public void onClick(DialogInterface dialog, int indexSelected) {
-
+                            // when an item is selected when need to capture what was selected.
                             SelectedPictureSizeIndex = indexSelected;
                             SelectedPictureSize = SupportedPictureSizes.get(indexSelected);
                         }
@@ -723,15 +730,14 @@ public class MainActivity extends Activity {
                     .setPositiveButton(getString(R.string.buttonOk), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
-
-                            //Do nothing here. We override the onclick
-
+                            //Do nothing here. We override the onclick when the alert dialog is displayed.
                         }
                     });
 
             // create alert dialog
             final AlertDialog alertDialog = builder.create();
 
+            // when the OK button is clicked we need to update the camera resolution
             alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
 
                 @Override
@@ -743,6 +749,7 @@ public class MainActivity extends Activity {
 
                             @Override
                             public void onClick(View view) {
+
 
                                 if (SelectedPictureSize != null) {
                                     if (CameraParameters != null) {
@@ -863,6 +870,8 @@ public class MainActivity extends Activity {
 //        return true;
 //    }
 
+    // Save user preferences so that when the app closes and then reopens at a later time we
+    // can reload the saved preferences.
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -876,6 +885,9 @@ public class MainActivity extends Activity {
 
     }
 
+    // We need to capture the picture button press of the camera and take a picture.
+    // We need to capture the focus button press of the camera and focus the camera.
+    // We need to capture the zoom in/out ring press of the camera and zoom in/out.
     @Override
     public boolean dispatchKeyEvent( KeyEvent event) {
         int action = event.getAction();
@@ -1003,6 +1015,7 @@ public class MainActivity extends Activity {
         }
     }
 
+    // save user preferences when the back button is pressed (this takes us out of the app)
     @Override
     public void onBackPressed() {
         SavePreferences();
@@ -1024,6 +1037,7 @@ public class MainActivity extends Activity {
         editor.commit();
     }
 
+    // Get the saved preferences so that we can load them back into the app.
     private void LoadPreferences(){
 
         mZoomLevels = new String[] {
@@ -1100,6 +1114,7 @@ public class MainActivity extends Activity {
 //        }
 //    }
 
+    // Tell the camera to zoom in.
     void zoomIn() {
         try {
 
@@ -1127,6 +1142,7 @@ public class MainActivity extends Activity {
         }
     }
 
+    // Tell the camera to zoom out.
     void zoomOut() {
         try {
 
@@ -1171,6 +1187,7 @@ public class MainActivity extends Activity {
 //        }
 //    }
 
+    // Display an alert if no camera was found.
     void showNoCameraDialog() {
         try {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -1188,12 +1205,14 @@ public class MainActivity extends Activity {
         }
     }
 
+    // Display a toast message.
     private void displayText(final String message) {
         //mToastText.cancel();
         mToastText.setText(message);
         mToastText.show();
     }
 
+    // Update a TextView (label) in the layout.
     public void updateStatus(final String status) {
 
         TextView textView = (TextView) this.findViewById(R.id.textView2);
@@ -1203,6 +1222,7 @@ public class MainActivity extends Activity {
 
     }
 
+    // We need to manually handle the display when the device is rotated.
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -1255,6 +1275,7 @@ public class MainActivity extends Activity {
 
     }
 
+    // Update the side bar button margins when they are displayed vertically.
     private void setButtonMargins_Vertical(){
         ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnBluetoothDevices)).getLayoutParams()).topMargin = 10;
         ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnBluetoothDevices)).getLayoutParams()).bottomMargin = 0;
@@ -1274,6 +1295,7 @@ public class MainActivity extends Activity {
         ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSavePhoto)).getLayoutParams()).rightMargin = 40;
     }
 
+    // Update the side bar button margins when they are displayed horizontally.
     private void setButtonMargins_Horizontal(){
         ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnBluetoothDevices)).getLayoutParams()).topMargin = 40;
         ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnBluetoothDevices)).getLayoutParams()).bottomMargin = 40;

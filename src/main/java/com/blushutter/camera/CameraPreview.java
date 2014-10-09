@@ -8,19 +8,33 @@ import android.view.SurfaceView;
 
 public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
 
-    private static final String LOG_TAG = AppConstants.LOG_TAG + ".CameraPreview";
+    // for debugging...
+    //private static final String LOG_TAG = AppConstants.LOG_TAG + ".CameraPreview";
 
     private Camera mCamera;
     private SurfaceHolder mHolder;
 
+    /**
+     * Constructor
+     * @param context
+     * @param attributeSet
+     */
     public CameraPreview(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
     }
 
+    /**
+     * Constructor
+     * @param context
+     */
     public CameraPreview(Context context) {
         super(context);
     }
 
+    /**
+     * Connect the camera to the surface holder.
+     * @param camera
+     */
     public void connectCamera(Camera camera) {
         mCamera = camera;
 
@@ -31,6 +45,9 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         startPreview();
     }
 
+    /**
+     * Release the camera
+     */
     public void releaseCamera() {
         if (mCamera != null) {
             // stop preview
@@ -40,6 +57,9 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         }
     }
 
+    /**
+     * Start viewing the camera preview.
+     */
     void startPreview() {
         if (mCamera != null && mHolder.getSurface() != null) {
             try {
@@ -58,6 +78,9 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         }
     }
 
+    /**
+     * Stop viewing the camera preview.
+     */
     void stopPreview() {
         if (mCamera != null) {
             try {
@@ -70,17 +93,33 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         }
     }
 
+    /**
+     * When the surface is created then start viewing the camera preview.
+     * @param surfaceHolder
+     */
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         startPreview();
     }
 
+    /**
+     * When the surface changes (i.e. change in orientation) we need to
+     * stop and restart the camera preview.
+     * @param surfaceHolder
+     * @param i
+     * @param i2
+     * @param i3
+     */
     @Override
     public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i2, int i3) {
         stopPreview();
         startPreview();
     }
 
+    /**
+     * When the surface is destroyed then stop viewing the camera preview.
+     * @param surfaceHolder
+     */
     @Override
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
         stopPreview();

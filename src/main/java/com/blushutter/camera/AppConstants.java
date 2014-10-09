@@ -3,6 +3,9 @@ package com.blushutter.camera;
 
 public class AppConstants {
 
+    /**
+     * Constructor
+     */
     private AppConstants() {}  // prevents instantiation
 
     public static final String LOG_TAG = "com.blushutter.camera";
