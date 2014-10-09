@@ -35,36 +35,12 @@ import java.util.Set;
 
 public class MainActivity extends Activity {
 
-    // constants
-    public static final String LOG_TAG = "com.blushutter.camera";
-    public static final int NOT_SET = -1;
-
-    private static final int REQUEST_CONNECT_DEVICE = 1;
-    private static final int REQUEST_ENABLE_BT = 2;
-    private static final String SELECTED_SOUND_ON = "SoundOn";
-    private static final String SELECTED_CAMERA_ID_KEY = "mSelectedCameraId";
-    private static final String SELECTED_PICTURE_SIZE = "SelectedPictureSizeIndex";
-    private static final String SELECTED_BLUETOOTH_ID_KEY = "mSelectedBluetoothId";
-    private static final String CAMERA_SIZE_DISPLAY_FORMAT = "%d x %d";
-    private static final long ZOOM_TIME = 500;
-
-    // Message types sent from the BluetoothChatService Handler
-    public static final int MESSAGE_STATE_CHANGE = 1;
-    public static final int MESSAGE_READ = 2;
-    public static final int MESSAGE_WRITE = 3;
-    public static final int MESSAGE_DEVICE_NAME = 4;
-    public static final int MESSAGE_TOAST = 5;
-    // Key names received from the BluetoothCommandService Handler
-    public static final String DEVICE_NAME = "device_name";
-    public static final String TOAST = "toast";
-
-
     // private variables
     private final Context mContext = this;
     private static Toast mToastText;
     private Camera mSelectedCamera;
     private List<String> mBluetoothList = new ArrayList<String>();
-    private int mSelectedCameraId = NOT_SET;
+    private int mSelectedCameraId = AppConstants.NOT_SET;
     private boolean mIsFocusing = false;
     private String[] mZoomLevels = null;
     private String mSelectedBluetoothId = null;
@@ -81,7 +57,7 @@ public class MainActivity extends Activity {
     public Camera.Parameters CameraParameters = null;
     public Camera.Size SelectedPictureSize = null;
     public List<Camera.Size> SupportedPictureSizes = null;
-    public int SelectedPictureSizeIndex = NOT_SET;
+    public int SelectedPictureSizeIndex = AppConstants.NOT_SET;
     public static Boolean SavePhotos = false;
     public static Boolean SoundOn = true;
     public int ScreenRotation = 0;
@@ -92,6 +68,7 @@ public class MainActivity extends Activity {
 
         try {
 
+            // any sounds that this app creates will go through the Android system stream
             setVolumeControlStream(AudioManager.STREAM_SYSTEM);
 
             LoadPreferences();
@@ -118,9 +95,6 @@ public class MainActivity extends Activity {
                     setupBluetooth();
                 }
             }
-
-            // pre-load sounds
-            SoundManager.getSingleton().preload(this);
 
         }
         catch (Exception e) {
@@ -244,7 +218,7 @@ public class MainActivity extends Activity {
 
                 if (!mBluetoothAdapter.isEnabled()) {
                     Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+                    startActivityForResult(enableBtIntent, AppConstants.REQUEST_ENABLE_BT);
                 }
 
                 if (mSelectedBluetoothId == null) {
@@ -537,7 +511,7 @@ public class MainActivity extends Activity {
 
             try {
                 switch (msg.what) {
-                    case MESSAGE_STATE_CHANGE:
+                    case AppConstants.MESSAGE_STATE_CHANGE:
                         switch (msg.arg1) {
                             case BluetoothCommandService.STATE_CONNECTED:
                                 ConnectionIsOpen = true;
@@ -557,16 +531,16 @@ public class MainActivity extends Activity {
                                 break;
                         }
                         break;
-                    case MESSAGE_DEVICE_NAME:
+                    case AppConstants.MESSAGE_DEVICE_NAME:
                         // save_off the connected device's name
-                        String mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+                        String mConnectedDeviceName = msg.getData().getString(AppConstants.DEVICE_NAME);
 
                         updateStatus("Connected to " + mConnectedDeviceName);
 
                         break;
-                    case MESSAGE_TOAST:
+                    case AppConstants.MESSAGE_TOAST:
 
-                        String t = msg.getData().getString(TOAST);
+                        String t = msg.getData().getString(AppConstants.TOAST);
                         updateStatus(t);
 
                         if (t!=null && t.equals("Unable to connect device")) {
@@ -652,7 +626,7 @@ public class MainActivity extends Activity {
                 mSelectedCamera = CameraHelper.releaseSelectedCamera(mSelectedCamera, this);
             }
 
-            if (mSelectedCameraId == NOT_SET) {
+            if (mSelectedCameraId == AppConstants.NOT_SET) {
                 mSelectedCameraId = CameraHelper.getFacingCameraId(Camera.CameraInfo.CAMERA_FACING_BACK);
             }
 
@@ -730,7 +704,7 @@ public class MainActivity extends Activity {
 
         try {
             for (Camera.Size pictureSize: SupportedPictureSizes)
-                pictureSizesAsString[index++] = String.format(CAMERA_SIZE_DISPLAY_FORMAT, pictureSize.width, pictureSize.height);
+                pictureSizesAsString[index++] = String.format(AppConstants.CAMERA_SIZE_DISPLAY_FORMAT, pictureSize.width, pictureSize.height);
 
             // show list in dialog
             AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
@@ -965,11 +939,11 @@ public class MainActivity extends Activity {
                     }
 
                     // increment the zoom
-                    if (eventTime - mStartPressTime >= ZOOM_TIME) {
+                    if (eventTime - mStartPressTime >= AppConstants.ZOOM_TIME) {
                         mStartPressTime = 0;
                         zoomIn();
                     }
-                    else if (mZoomStarted == false) {
+                    else if (!mZoomStarted) {
                         mZoomStarted = true;
                         zoomIn();
                     }
@@ -1002,11 +976,11 @@ public class MainActivity extends Activity {
                     }
 
                     // increment the zoom
-                    if (eventTime - mStartPressTime >= ZOOM_TIME) {
+                    if (eventTime - mStartPressTime >= AppConstants.ZOOM_TIME) {
                         mStartPressTime = 0;
                         zoomOut();
                     }
-                    else if (mZoomStarted == false) {
+                    else if (!mZoomStarted) {
                         mZoomStarted = true;
                         zoomOut();
                     }
@@ -1035,13 +1009,18 @@ public class MainActivity extends Activity {
         super.onBackPressed();
     }
 
+    // save our apps settings so that we can reload the settings if the
+    // user exits the app and returns at a later time.
     private void SavePreferences(){
         SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(SELECTED_BLUETOOTH_ID_KEY , mSelectedBluetoothId);
-        editor.putInt(SELECTED_CAMERA_ID_KEY, mSelectedCameraId);
-        editor.putInt(SELECTED_PICTURE_SIZE, SelectedPictureSizeIndex);
-        editor.putBoolean(SELECTED_SOUND_ON, SoundOn);
+        // The following will save the preferences as a Key/Value pair.
+        // The first parameter is the Key which is defined as a Constant at the top of this file.
+        // The second parameter is the Value that is associated with the Key.
+        editor.putString(AppConstants.SELECTED_BLUETOOTH_ID_KEY , mSelectedBluetoothId);
+        editor.putInt(AppConstants.SELECTED_CAMERA_ID_KEY, mSelectedCameraId);
+        editor.putInt(AppConstants.SELECTED_PICTURE_SIZE, SelectedPictureSizeIndex);
+        editor.putBoolean(AppConstants.SELECTED_SOUND_ON, SoundOn);
         editor.commit();
     }
 
@@ -1066,11 +1045,11 @@ public class MainActivity extends Activity {
                 "21.0x"};
 
         SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
-        mSelectedBluetoothId = sharedPreferences.getString(SELECTED_BLUETOOTH_ID_KEY, null);
-        mSelectedCameraId = sharedPreferences.getInt(SELECTED_CAMERA_ID_KEY, NOT_SET);
-        SelectedPictureSizeIndex = sharedPreferences.getInt(SELECTED_PICTURE_SIZE, NOT_SET);
+        mSelectedBluetoothId = sharedPreferences.getString(AppConstants.SELECTED_BLUETOOTH_ID_KEY, null);
+        mSelectedCameraId = sharedPreferences.getInt(AppConstants.SELECTED_CAMERA_ID_KEY, AppConstants.NOT_SET);
+        SelectedPictureSizeIndex = sharedPreferences.getInt(AppConstants.SELECTED_PICTURE_SIZE, AppConstants.NOT_SET);
         SoundManager.getSingleton().preload(this);
-        SoundOn = sharedPreferences.getBoolean(SELECTED_SOUND_ON, true);
+        SoundOn = sharedPreferences.getBoolean(AppConstants.SELECTED_SOUND_ON, true);
     }
 
 //    private void submitFocusAreaRect(final Rect touchRect)

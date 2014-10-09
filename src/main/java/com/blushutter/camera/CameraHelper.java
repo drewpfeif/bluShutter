@@ -5,7 +5,9 @@ import android.content.Context;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.DisplayMetrics;
 import android.view.Surface;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import java.io.File;
@@ -14,7 +16,7 @@ import java.util.Date;
 
 public class CameraHelper {
 
-    private static final String LOG_TAG = MainActivity.LOG_TAG + ".CameraHelper";
+    private static final String LOG_TAG = AppConstants.LOG_TAG + ".CameraHelper";
 
     public static int getDisplayOrientationForCamera(Context context, int cameraId) {
         final int DEGREES_IN_CIRCLE = 360;
@@ -157,7 +159,7 @@ public class CameraHelper {
     }
 
     public static int getFacingCameraId(int facing) {
-        int cameraId = MainActivity.NOT_SET;
+        int cameraId = AppConstants.NOT_SET;
 
         try {
             int nCameras = Camera.getNumberOfCameras();
@@ -181,11 +183,18 @@ public class CameraHelper {
     public static Camera openSelectedCamera(int cameraId, Activity activity) {
 
         Camera camera = null;
-        if (cameraId != MainActivity.NOT_SET) {
+        if (cameraId != AppConstants.NOT_SET) {
             try {
                 camera = Camera.open(cameraId);
 
                 CameraPreview cameraPreview = (CameraPreview) activity.findViewById(R.id.cameraPreview);
+                ViewGroup.LayoutParams params = cameraPreview.getLayoutParams();
+                DisplayMetrics dm = new DisplayMetrics();
+                activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
+                params.width =dm.widthPixels;
+                params.height = dm.heightPixels;
+                cameraPreview.setLayoutParams(params);
+
                 cameraPreview.connectCamera(camera);
 
                 Camera.Parameters cameraParameters = camera.getParameters();

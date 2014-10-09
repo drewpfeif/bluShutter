@@ -11,7 +11,7 @@ import android.media.SoundPool;
  */
 public class SoundManager {
 
-    private static final String LOG_TAG = MainActivity.LOG_TAG + ".SoundManager";
+    private static final String LOG_TAG = AppConstants.LOG_TAG + ".SoundManager";
     //public boolean SoundOn;
     public final static int SOUND_SHUTTER = 0;
     public final static int SOUND_NOTIFICATION = 1;
