@@ -15,6 +15,7 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -139,6 +140,14 @@ public class MainActivity extends Activity {
                 else {
                     displayText("Save to Camera is Off");
                 }
+            }
+        });
+
+        // btnShutter
+        mImageButton = (ImageButton) findViewById(R.id.btnShutter);
+        mImageButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                takePicture();
             }
         });
 
@@ -1272,6 +1281,14 @@ public class MainActivity extends Activity {
             //setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             //setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
+
+        CameraPreview cameraPreview = (CameraPreview) findViewById(R.id.cameraPreview);
+        ViewGroup.LayoutParams params = cameraPreview.getLayoutParams();
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        params.width =dm.widthPixels;
+        params.height = dm.heightPixels;
+        cameraPreview.setLayoutParams(params);
 
     }
 

@@ -2,4 +2,5 @@
 <resources>
     <item name="blushutter_root" type="id">blushutter_root</item>
     <item name="action_sound" type="id">action_sound</item>
+    <item name="btnShutter" type="id">btnShutter</item>
 </resources>

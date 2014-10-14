@@ -74,6 +74,19 @@
             android:layout_height="fill_parent"
             android:id="@+id/cameraPreview"/>
 
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@id/btnShutter"
+            android:clickable="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:paddingTop="5dp"
+            android:paddingRight="5dp"
+            android:background="@null"
+            android:contentDescription="@string/CameraShutter"
+            android:src="@drawable/shutter_button" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -23,5 +23,6 @@
     <string name="btnSavePhotoDesc">Save Photo To Camera</string>
     <string name="btnSoundDesc">Turn Sound On/Off</string>
     <string name="refreshcamera">Refresh Camera</string>
+    <string name="CameraShutter">Camera Shutter</string>
 
 </resources>
