@@ -235,6 +235,8 @@ public class CameraHelper {
 
                 int i = 0;
 
+                boolean sizeFound = false;
+
                 // for each size in our list of supported pictures sized we want to
                 // see if the size that was set above is in our list.  If it is then set
                 // the MainActivity's SelectedPictureSizeIndex so that when the list of
@@ -242,12 +244,19 @@ public class CameraHelper {
                 for (Camera.Size pictureSize:((MainActivity) activity).SupportedPictureSizes) {
                     if (size.width == pictureSize.width && size.height == pictureSize.height) {
                         ((MainActivity) activity).SelectedPictureSizeIndex = i;
+                        sizeFound = true;
                         break;
                     }
                     i++;
                 }
 
-                cameraParameters.setPictureSize(size.width,size.height);
+                if (sizeFound) {
+                    cameraParameters.setPictureSize(size.width,size.height);
+                }
+                else {
+
+                }
+
 
                 // set focus to auto
                 cameraParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);

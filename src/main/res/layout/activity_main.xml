@@ -12,59 +12,7 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".MainActivity">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:id="@+id/sidebar"
-        android:layout_width="58dp"
-        android:layout_height="fill_parent">
-
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/btnBluetoothDevices"
-            android:clickable="true"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:contentDescription="@string/btnBluetoothDevicesDesc"
-            android:background="@android:color/black"
-            android:src="@drawable/bluetooth2" />
-
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/btnResolution"
-            android:clickable="true"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:contentDescription="@string/btnResolutionDesc"
-            android:background="@android:color/black"
-            android:src="@drawable/settings" />
-
-        <ToggleButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/btnSavePhoto"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:textOn="" android:textOff=""
-            android:contentDescription="@string/btnSavePhotoDesc"
-            android:background="@drawable/savestate"
-            android:checked="false"/>
-
-        <ToggleButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/btnSound"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:textOn="" android:textOff=""
-            android:contentDescription="@string/btnSoundDesc"
-            android:background="@drawable/soundstate"
-            android:checked="true" />
-
-    </LinearLayout>
-
-    <RelativeLayout
+     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="100">
@@ -74,12 +22,68 @@
             android:layout_height="fill_parent"
             android:id="@+id/cameraPreview"/>
 
+        <LinearLayout
+            android:orientation="vertical"
+            android:id="@+id/sidebar"
+            android:layout_width="58dp"
+            android:layout_height="fill_parent">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnBluetoothDevices"
+                android:clickable="true"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="5dp"
+                android:contentDescription="@string/btnBluetoothDevicesDesc"
+                android:background="@null"
+                android:src="@drawable/bluetooth2" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnResolution"
+                android:clickable="true"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="5dp"
+                android:contentDescription="@string/btnResolutionDesc"
+                android:background="@null"
+                android:src="@drawable/settings" />
+
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnSavePhoto"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="5dp"
+                android:textOn="" android:textOff=""
+                android:contentDescription="@string/btnSavePhotoDesc"
+                android:background="@drawable/savestate"
+                android:checked="false"/>
+
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnSound"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="5dp"
+                android:textOn="" android:textOff=""
+                android:contentDescription="@string/btnSoundDesc"
+                android:background="@drawable/soundstate"
+                android:checked="true" />
+
+        </LinearLayout>
+
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@id/btnShutter"
             android:clickable="true"
-            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:paddingTop="5dp"
             android:paddingRight="5dp"

@@ -10,19 +10,25 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Point;
 import android.hardware.Camera;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -31,6 +37,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -53,6 +60,17 @@ public class MainActivity extends Activity {
     private Boolean mRestartingBluetooth = false;
     private int mFailedConnectionCount = 0;
 
+    private int CurrentZoom = 0;
+    private float CurrentScale = 1f;
+    private ScaleGestureDetector SGD;
+    private long ScaleEventTime = 0;
+    private float StartingSpan = 0f;
+    private float MaxSpan = 0f;
+    private float MinSpan = 0f;
+    private float SpanLengthPerZoom = 0f;
+    private int MaxZoom = 0;
+    private int ZoomLevelChange = 0;
+
     // public variables
     public Boolean ConnectionIsOpen = false;
     public Camera.Parameters CameraParameters = null;
@@ -62,6 +80,7 @@ public class MainActivity extends Activity {
     public static Boolean SavePhotos = false;
     public static Boolean SoundOn = true;
     public int ScreenRotation = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +99,17 @@ public class MainActivity extends Activity {
 
             if (savedInstanceState == null) {
                 setContentView(R.layout.activity_main);
+
+                SGD = new ScaleGestureDetector(this,new ScaleListener());
+
+                WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
+                Display display = wm.getDefaultDisplay();
+
+                // get the maximum span - this is for calculating zoom using gestures
+                Point sz = new Point();
+                display.getSize(sz);
+
+                MaxSpan = (float) Math.sqrt((double)((sz.x * sz.x) + (sz.y * sz.y)));
 
                 //setupUiVisibility();
 
@@ -644,6 +674,10 @@ public class MainActivity extends Activity {
             mSelectedCamera = CameraHelper.openSelectedCamera(mSelectedCameraId, this);
             mSelectedCamera.setParameters(CameraParameters);
 
+            MaxZoom = mSelectedCamera.getParameters().getMaxZoom();
+
+            LoadZoomValues();
+
             displayZoom();
 
             // Start the Bluetooth Service and try to connect to a device.
@@ -651,7 +685,7 @@ public class MainActivity extends Activity {
 
         }
         catch (Exception e) {
-            //Log.e(LOG_TAG, "Error in onResume: " + e.getMessage());
+            Log.e("AIMCAM", "Error in onResume: " + e.getMessage());
         }
 
     }
@@ -879,6 +913,25 @@ public class MainActivity extends Activity {
 //        return true;
 //    }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            // reset the starting span
+            StartingSpan = 0f;
+            SpanLengthPerZoom = (MaxSpan / MaxZoom);
+        }
+
+        SGD.onTouchEvent(ev);
+
+        if (ev.getAction() == MotionEvent.ACTION_UP) {
+            // reset the starting span
+            StartingSpan = 0f;
+        }
+
+        return true;
+    }
+
     // Save user preferences so that when the app closes and then reopens at a later time we
     // can reload the saved preferences.
     @Override
@@ -1046,26 +1099,47 @@ public class MainActivity extends Activity {
         editor.commit();
     }
 
+    private void LoadZoomValues() {
+
+        try {
+
+            mZoomLevels = new String[MaxZoom + 1];
+
+            int counter = 0;
+            for(int i : mSelectedCamera.getParameters().getZoomRatios()) {
+                //int zRatio = i;
+                mZoomLevels[counter] = String.format("%.2f", (float)((float)i / 100f)) + "x";
+                counter++;
+            }
+
+        }
+        catch (Exception e) {
+
+            // default to galaxy camera zoom values
+            mZoomLevels = new String[] {
+                    "1.0x",
+                    "1.2x",
+                    "1.5x",
+                    "1.8x",
+                    "2.2x",
+                    "2.8x",
+                    "3.4x",
+                    "4.0x",
+                    "5.0x",
+                    "6.1x",
+                    "7.5x",
+                    "9.4x",
+                    "11.4x",
+                    "13.9x",
+                    "17.9x",
+                    "21.0x"};
+
+        }
+
+    }
+
     // Get the saved preferences so that we can load them back into the app.
     private void LoadPreferences(){
-
-        mZoomLevels = new String[] {
-                "1.0x",
-                "1.2x",
-                "1.5x",
-                "1.8x",
-                "2.2x",
-                "2.8x",
-                "3.4x",
-                "4.0x",
-                "5.0x",
-                "6.1x",
-                "7.5x",
-                "9.4x",
-                "11.4x",
-                "13.9x",
-                "17.9x",
-                "21.0x"};
 
         SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
         mSelectedBluetoothId = sharedPreferences.getString(AppConstants.SELECTED_BLUETOOTH_ID_KEY, null);
@@ -1073,6 +1147,7 @@ public class MainActivity extends Activity {
         SelectedPictureSizeIndex = sharedPreferences.getInt(AppConstants.SELECTED_PICTURE_SIZE, AppConstants.NOT_SET);
         SoundManager.getSingleton().preload(this);
         SoundOn = sharedPreferences.getBoolean(AppConstants.SELECTED_SOUND_ON, true);
+
     }
 
 //    private void submitFocusAreaRect(final Rect touchRect)
@@ -1330,5 +1405,115 @@ public class MainActivity extends Activity {
         ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSavePhoto)).getLayoutParams()).bottomMargin = 40;
         ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSavePhoto)).getLayoutParams()).leftMargin = 10;
         ((ViewGroup.MarginLayoutParams) (findViewById(R.id.btnSavePhoto)).getLayoutParams()).rightMargin = 0;
+    }
+
+    private class ScaleListener extends ScaleGestureDetector.
+            SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+
+            try {
+
+                // if starting span is zero then this is the initial zoom in/out event
+                if (StartingSpan == 0f ) {
+                    StartingSpan = detector.getCurrentSpan();
+                    CurrentZoom = mSelectedCamera.getParameters().getZoom();
+                    //Log.e("AIMCAM", "Starting Span: " + StartingSpan);
+                    //Log.e("AIMCAM", "Starting Zoom: " + CurrentZoom);
+                    return true;
+                }
+
+                // get the current span
+                float currentSpan = detector.getCurrentSpan();
+                //Log.e("AIMCAM", "Current Span: " + currentSpan);
+
+                // default the new zoom to the current zoom
+                int newZoom = CurrentZoom;
+
+                // get the number of zoom levels to change the current zoom to by
+                // dividing the difference of the starting span and current span by
+                // the average span length per zoom level (which is the maximum span divided by
+                // the number of zoom levels).
+                ZoomLevelChange = (int)(Math.abs(StartingSpan - currentSpan) / SpanLengthPerZoom);
+
+                // check if the span difference is great enough to update the zoom level
+                if (ZoomLevelChange >= 1) {
+
+                    // if the starting span is greater than the current span then we are zooming out
+                    if (StartingSpan >= currentSpan) {
+                        // zoom out
+                        newZoom -= ZoomLevelChange;
+                        if (newZoom < 0) newZoom = 0;
+                    }
+                    // if the starting span is less than the current span then we are zooming in
+                    else {
+                        // zoom in
+                        newZoom += ZoomLevelChange;
+                        if (newZoom > MaxZoom) newZoom = MaxZoom;
+                    }
+
+                    // update the starting span to the current span
+                    StartingSpan = currentSpan;
+
+                }
+
+                //Log.e("AIMCAM", "New Zoom: " + newZoom);
+
+                // if the new zoom level is different than the current zoom level then
+                // update the camera zoom to the new zoom level
+                if (newZoom != CurrentZoom) {
+                    CurrentZoom = newZoom;
+                    CameraParameters = mSelectedCamera.getParameters();
+                    CameraParameters.setZoom(Math.min(newZoom, MaxZoom));
+                    mSelectedCamera.setParameters(CameraParameters);
+
+                    displayZoom();
+                }
+
+            }
+            catch (Exception e) {
+                Log.e("AIMCAM", "Zoom Error: " + e.getMessage());
+            }
+
+
+            //Log.e("AIMCAM", "CurrentSpan: " + detector.getCurrentSpan());
+
+            //long eventTime = detector.getEventTime();
+            //CurrentScale *=  detector.getScaleFactor();
+            //CurrentScale = Math.max(0.1f, Math.min(CurrentScale, 5.0f));
+
+//
+//            if ((eventTime - ScaleEventTime) >= 10) {
+//
+//                //CurrentScale = newScale;
+//                ScaleEventTime = detector.getEventTime();
+//
+//                // scale-zoom formula
+//                //  zoom = ((CurrentScale - Min Scale) / (Max Scale - Min Scale)) * Max Zoom
+//                //  zoom = ((CurrentScale - .1) / (5 - .1) * 15
+//                //  zoom = ((CurrentScale - .1) / 4.9) * 15
+//
+//                int currZoom = mSelectedCamera.getParameters().getZoom();
+//                int maxZoom = mSelectedCamera.getParameters().getMaxZoom();
+//                int newZoom = (int)(((CurrentScale - .1) / 4.9) * maxZoom);
+//
+//                Log.e("AIMCAM", "scale: " + CurrentScale);
+//                Log.e("AIMCAM", "currZoom: " + currZoom);
+//                Log.e("AIMCAM", "newZoom: " + newZoom);
+//                Log.e("AIMCAM", "maxZoom: " + maxZoom);
+//
+//                if (newZoom != currZoom) {
+//                    CameraParameters = mSelectedCamera.getParameters();
+//                    CameraParameters.setZoom(Math.min(newZoom, maxZoom));
+//                    mSelectedCamera.setParameters(CameraParameters);
+//
+//                    displayZoom();
+//                }
+//            }
+
+            return true;
+        }
+
+
     }
 }
