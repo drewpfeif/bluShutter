@@ -18,7 +18,7 @@ public class AppConstants {
     public static final String SELECTED_PICTURE_SIZE = "SelectedPictureSizeIndex";
     public static final String SELECTED_BLUETOOTH_ID_KEY = "mSelectedBluetoothId";
     public static final String CAMERA_SIZE_DISPLAY_FORMAT = "%d x %d";
-    public static final long ZOOM_TIME = 500;
+    public static final long ZOOM_TIME = 200;
 
     // Message types sent from the BluetoothChatService Handler
     public static final int MESSAGE_STATE_CHANGE = 1;

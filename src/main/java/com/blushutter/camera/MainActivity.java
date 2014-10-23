@@ -1238,16 +1238,13 @@ public class MainActivity extends Activity {
 
             if (!mZoomStarted) return;
 
-            int currZoom = mSelectedCamera.getParameters().getZoom();
-            int maxZoom = mSelectedCamera.getParameters().getMaxZoom();
+            if (CurrentZoom != MaxZoom) {
 
-            if (currZoom != maxZoom) {
-//
-//            Log.v(LOG_TAG, "Current Zoom: " + currZoom);
-//
-                currZoom++;
+//            Log.v(LOG_TAG, "Current Zoom: " + CurrentZoom);
+
+                CurrentZoom++;
                 CameraParameters = mSelectedCamera.getParameters();
-                CameraParameters.setZoom(Math.min(currZoom, maxZoom));
+                CameraParameters.setZoom(Math.min(CurrentZoom, MaxZoom));
                 mSelectedCamera.setParameters(CameraParameters);
 
                 displayZoom();
@@ -1266,19 +1263,16 @@ public class MainActivity extends Activity {
 
             if (!mZoomStarted) return;
 
-            int currZoom = mSelectedCamera.getParameters().getZoom();
+            if (CurrentZoom != 0) {
 
-            if (currZoom != 0) {
+//            Log.v(LOG_TAG, "Current Zoom: " + CurrentZoom);
 
-//
-//            Log.v(LOG_TAG, "Current Zoom: " + currZoom);
-//
-                currZoom--;
-                if (currZoom == 0) {
+                CurrentZoom--;
+                if (CurrentZoom == 0) {
                     CameraParameters.setZoom(0);
                 }
                 else {
-                    CameraParameters.setZoom(Math.max(currZoom, 0));
+                    CameraParameters.setZoom(Math.max(CurrentZoom, 0));
                 }
                 mSelectedCamera.setParameters(CameraParameters);
 
